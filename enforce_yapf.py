@@ -7,4 +7,3 @@ for subdir, dirs, files in os.walk(rootdir):
             file_path = os.path.join(subdir, file)
             #print(filepath)
             FormatFile(file_path, in_place=True, style_config='pep8')
-
