@@ -61,38 +61,3 @@ shell: build-dev
 push: build-prod
 	@echo "\n${BLUE}Pushing image to GitHub Docker Registry...${NC}\n"
 	@docker push $(IMAGE):$(VERSION)
-
-cluster:
-	@if [ $$(kind get clusters | wc -l) = 0 ]; then \
-		kind create cluster --config ./k8s/cluster/kind-config.yaml --name kind; \
-	fi
-	@kubectl cluster-info --context kind-kind
-	@kubectl get nodes
-	@kubectl config set-context kind-kind --namespace $(MODULE)
-
-deploy-local:
-	@kubectl rollout restart deployment $(MODULE)
-
-cluster-debug:
-	@echo "\n${BLUE}Current Pods${NC}\n"
-	@kubectl describe pods
-	@echo "\n${BLUE}Recent Logs${NC}\n"
-	@kubectl logs --since=1h -lapp=$(MODULE)
-
-cluster-rsh:
-	# if your container has bash available
-	@kubectl exec -it $$(kubectl get pod -l app=${MODULE} -o jsonpath="{.items[0].metadata.name}") -- /bin/bash
-
-manifest-update:
-	@kubectl apply -f ./k8s/app.yaml
-
-version:
-	@echo $(TAG)
-
-.PHONY: clean image-clean build-prod push test
-
-clean:
-	rm -rf .pytest_cache .coverage .pytest_cache coverage.xml
-
-docker-clean:
-	@docker system prune -f --filter "label=name=$(MODULE)"
