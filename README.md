@@ -1,12 +1,12 @@
 ### Python project setup
 
 To run the project
-```
-$python3 -m blueprint
+```bash
+python3 -m blueprint
 ```
 To run unit tests
-```
-$pytest
+```bash
+pytest
 ```
 It runs the test contained in the file test_app.py
 
