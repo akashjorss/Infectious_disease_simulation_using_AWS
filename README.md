@@ -2,14 +2,14 @@
 
 To run the project
 ```
-$python3 -m blueprint
+python3 -m blueprint
 ```
 Enforcing PEP8 standards:
 A pre-commit hook is configured to automatically enforce the PEP-8 standards using yapf. 
 
 To run unit tests
 ```
-$pytest
+pytest
 ```
 It runs the test contained in the file test_app.py
 
