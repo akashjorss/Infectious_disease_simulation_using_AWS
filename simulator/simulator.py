@@ -40,3 +40,42 @@ print("PLOTTING FIGURE")
 fig, axs = plt.subplots(2)
 fig.suptitle('Covid-19 Epidemic Sample Model', fontsize=16)
 plot_day(covid_df, fig, axs, stats_df, day, movers_list, show=True)
+
+## Plot the static graph
+print("-"*20)
+covid_df, stats_df = update_stats_for_day(covid_df, stats_df, day)
+
+yesterday_patients = list(covid_df['Covid-19'])
+covid_df, day, movers_list = simulate_next_day(covid_df, day, movers_list, x_limit, y_limit)
+interact(covid_df, day, yesterday_patients, dist_limit)
+
+## Day 1
+plot_day(covid_df, fig, axs, stats_df, day, movers_list, show=True)
+covid_df, stats_df = update_stats_for_day(covid_df, stats_df, day)
+
+
+count_sames = 0
+while stats_df.loc[day, 'Healthy'] > 0 and day < 100:
+    if (list(stats_df.loc[day]) == list(stat_df.loc[day-1])): 
+        count_sames +=1
+        if count_sames > 2 : 
+            break
+    else :
+        countsames = 0
+    
+    yesterday_patients = list(df['Covid-19'])
+    covid_df, day, movers_list = simulate_next_day(covid_df, day, movers_list, x_limit, y_limit)
+    interact(covid_df, day, yesterday_patients, dist_limit)
+    plot_day(covid_df, fig, axs, stats_df, day, movers_list, show=True)
+    covid_df, stats_df = update_stats_for_day(covid_df, stats_df, day)
+
+    print(31*'-')
+    print('Day:', day)
+    print(8*'- - ')    
+    print(stats_df.loc[Day])
+
+
+# Png_to_gif()
+# Stat.to_excel('Stat.xlsx')
+# Stat.plot(title='Statistical Data Vs. Days Passed')
+# plt.savefig('Stat')

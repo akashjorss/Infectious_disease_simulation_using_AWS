@@ -75,6 +75,166 @@ def infect(df, day, person):
     return df
 
 
+def update_stats_for_day(covid_df, stats_df, day):
+	"""
+    Update the statistics for the given day
+    Keyword arguments:
+    covid_df -- covid dataframe [X,Y,Covid-19,Day]
+    stats_df -- stats dataframe [Healthy,Covid-19(+),Hospitalized,Cured,Dead]
+    day -- current day
+    """
+
+    assert isinstance(covid_df, pd.core.frame.DataFrame)
+    assert isinstance(stats_df, pd.core.frame.DataFrame)
+    assert isinstance(day, int)
+
+	covid_list = list(covid_df['Covid-19'])
+    
+    stats_df.loc[Day,'Healthy'] = covid_list.count(False)
+    stats_df.loc[Day,'Covid-19(+)'] = covid_list.count(True)    
+    stats_df.loc[Day,'Hospitalized'] = covid_list.count(115)    
+    stats_df.loc[Day,'Cured'] = covid_list.count(7)
+    stats_df.loc[Day,'Dead'] = covid_list.count(666)
+
+    return covid_df, stats_df
+
+
+def kill(df, kill_prob=0.005):
+	"""
+	Kill a fraction of population given by kill_prob
+    Keyword arguments:
+    df -- covid dataframe [X,Y,Covid-19,Day]
+    kill_prob -- kill people by kill_prob (default: 0.005)
+    """
+
+    assert isinstance(df, pd.core.frame.DataFrame)
+    assert isinstance(kill_prob, float)
+    assert kill_prob >= 0
+    assert kill_prob <= 1
+
+	samplesize = math.floor(len(df[df['Covid-19']==True]) * kill_prob + len(df[df['Covid-19']==115]) * kill_prob)
+    if samplesize > len(df[df['Covid-19']==True]): return
+    df.loc[df[df['Covid-19']==True].sample(n = samplesize).index.values.tolist(),'Covid-19']=666
+    return df
+
+def hospitalize(df, hosp_prob=0.03):
+	"""
+	Hospitalize a fraction of population given by hosp_prob
+    Keyword arguments:
+    df -- covid dataframe [X,Y,Covid-19,Day]
+    hosp_prob -- Hospitalize people by hosp_prob (default: 0.03)
+    """
+
+    assert isinstance(df, pd.core.frame.DataFrame)
+    assert isinstance(kill_prob, float)
+    assert hosp_prob >= 0
+    assert hosp_prob <= 1
+
+	samplesize = math.floor(len(df[df['Covid-19'] == True]) * hosp_prob)
+    if samplesize > len(df[df['Covid-19'] == True]): return
+    df.loc[df[df['Covid-19']==True].sample(n=samplesize).index.values.tolist(),'Covid-19'] = 115
+    return df
+
+def cure(df, day):
+	"""
+	Cure people after their quarantine is finished
+    Keyword arguments:
+    df -- covid dataframe [X,Y,Covid-19,Day]
+    day -- current day
+    """
+
+    assert isinstance(df, pd.core.frame.DataFrame)
+    assert isinstance(day, int)
+
+	df.loc[(df['Day'] < day - 10) & (df['Covid-19'] == True), 'Covid-19'] = 7
+    df.loc[(df['Day'] < day - 21) & (df['Covid-19'] == 115), 'Covid-19'] = 7
+    return df
+
+
+def random_walk(df, movers_list, x_limit, y_limit):
+	"""
+	Talk random steps in the world
+    Keyword arguments:
+    df -- covid dataframe [X,Y,Covid-19,Day]
+    movers_list -- list of people who are moving in the world
+    x_limit -- max range on X-axis
+    y_limit -- max range on Y-axis
+    """
+	for i in movers_list:
+        if (df.loc[i,'Covid-19'] == 115) or (df.loc[i,'Covid-19'] == 666): 
+        	movers_list.remove(i)
+
+        df.loc[i,'X'], df.loc[i,'Y'] = (df.loc[i,'X'] + random.uniform(1, x_limit / 3)) % x_limit, (df.loc[i,'Y'] + random.uniform(1,y_limit / 3)) % y_limit
+
+    return df, movers_list
+
+
+def simulate_next_day(covid_df, stats_df, day, movers_list, x_limit, y_limit):
+	"""
+	Simulates the next day given current day data
+    Keyword arguments:
+    covid_df -- covid dataframe [X,Y,Covid-19,Day]
+    stats_df -- stats dataframe [Healthy,Covid-19(+),Hospitalized,Cured,Dead]
+    day -- current day
+    """
+
+    assert isinstance(covid_df, pd.core.frame.DataFrame)
+    assert isinstance(stats_df, pd.core.frame.DataFrame)
+    assert isinstance(day, int)
+
+    day += 1
+    covid_df = kill(covid_df)
+    covid_df = hospitalize(covid_df)
+    covid_df = cure(covid_df, day)
+    covid_df, movers_list = random_walk(covid_df, movers_list, x_limit, y_limit)
+
+    return covid_df, stats_df, day, movers_list
+
+def check(covid_df, i, j, yesterday_patients, dist_limit):
+	"""
+	Checks if two people are close enough to infect eachother
+    Keyword arguments:
+    covid_df -- covid dataframe [X,Y,Covid-19,Day]
+    i -- first person
+    j -- second person
+    yesterday_patients -- List of covud(+) people until yesterday
+    dist_limit -- csafe social distance limit
+    """
+
+    assert isinstance(covid_df, pd.core.frame.DataFrame)
+    assert isinstance(i, int)
+    assert isinstance(j, int)
+    assert isinstance(yesterday_patients, list)
+    assert isinstance(dist_limit, float)
+
+	dist = math.sqrt((covid_df.loc[i,'X'] - covid_df.loc[j,'X']) ** 2 + (covid_df.loc[i,'Y'] - covid_df.loc[j,'Y']) ** 2)
+    flag = ((yesterday_patients[i]==True) ^ (yesterday_patients[j]==True)) and dist < dist_limit
+    return flag
+
+
+def interact(covid_df, day, yesterday_patients, dist_limit):
+	"""
+	Infect people who interact with oneanother
+    Keyword arguments:
+    df -- covid dataframe [X,Y,Covid-19,Day]
+    day -- current day
+    """
+
+    assert isinstance(covid_df, pd.core.frame.DataFrame)
+    assert isinstance(day, int)
+
+    for i in range(len(covid_df)):
+        for j in range(i):
+            if check(covid_df, i, j, yesterday_patients, dist_limit):
+                if (covid_df.loc[i,'Covid-19'] == False) :
+                    covid_df = infect(df, day, i)
+                else:
+                    covid_df = infect(df, day, j)
+    return covid_df
+ 
+
+
+
 def get_covid_df_plt_color(df):
     """
     Samples colors according to the covid-state of the persn
