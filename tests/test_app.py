@@ -3,6 +3,7 @@ import pycurl
 from io import BytesIO
 import json
 
+
 def test_app(capsys, example_fixture):
     # pylint: disable=W0612,W0613
     #test hello world
@@ -16,7 +17,8 @@ def test_app(capsys, example_fixture):
     crl = pycurl.Curl()
 
     # Set URL value
-    crl.setopt(crl.URL, "https://dvgdt3t23b.execute-api.us-east-2.amazonaws.com/test")
+    crl.setopt(crl.URL,
+               "https://dvgdt3t23b.execute-api.us-east-2.amazonaws.com/test")
 
     # Write bytes that are utf-8 encoded
     crl.setopt(crl.WRITEDATA, b_obj)
@@ -32,7 +34,8 @@ def test_app(capsys, example_fixture):
 
     # Decode the bytes stored in get_body to HTML and print the result
     #print('Output of GET request:\n%s' % response)
-    assert(response == "Hello World")
+    assert (response == "Hello World")
+
 
 def test_lambda():
     # test the output of lambda
@@ -40,7 +43,8 @@ def test_lambda():
     crl = pycurl.Curl()
 
     # Set URL value
-    crl.setopt(crl.URL, "https://dvgdt3t23b.execute-api.us-east-2.amazonaws.com/test")
+    crl.setopt(crl.URL,
+               "https://dvgdt3t23b.execute-api.us-east-2.amazonaws.com/test")
 
     # Write bytes that are utf-8 encoded
     crl.setopt(crl.WRITEDATA, b_obj)
