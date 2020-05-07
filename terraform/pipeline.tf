@@ -54,7 +54,7 @@ resource "aws_iam_role_policy" "code_build_iam_policy" {
         "ec2:CreateNetworkInterfacePermission"
       ],
       "Resource": [
-"arn:aws:ec2:${var.aws_region}:${data.aws_caller_identity.current.account_id}:network-interface/*"
+"arn:aws:ec2:${data.aws_region.region.name}:${data.aws_caller_identity.current.account_id}:network-interface/*"
       ]
     }
   ]

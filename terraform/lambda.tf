@@ -1,16 +1,40 @@
+locals {
+  lambda_source_file = "lambda_package.zip"
+}
+
+data "archive_file" "package_lambda" {
+  type        = "zip"
+  source_file = "${path.module}/lambda_package/lambda_function.py"
+  output_path = "${path.module}/${local.lambda_source_file}"
+}
+
+resource "aws_s3_bucket" "lambda" {
+  bucket = "contact-tracking-project-2020-lambda"
+}
+
+
+resource "aws_s3_bucket_object" "lambda_code" {
+  bucket = aws_s3_bucket.lambda.bucket
+  key    = local.lambda_source_file
+  source = local.lambda_source_file
+  etag = filemd5(local.lambda_source_file)
+  depends_on = [data.archive_file.package_lambda]
+}
+
 resource "aws_lambda_function" "lambda_package" {
   function_name = "python_lambda"
 
   # The bucket name as created earlier with "aws s3api create-bucket"
-  s3_bucket = "cc-project-2020"
-  s3_key    = "lambda_package.zip"
+  s3_bucket = aws_s3_bucket.lambda.bucket
+  s3_key    = local.lambda_source_file
 
   # "main" is the filename within the zip file (main.js) and "handler"
   # is the name of the property under which the handler function was
   # exported in that file.
-  handler = "lambda_function.handler"
+  handler = "lambda_function.lambda_handler"
   runtime = "python3.8"
   role = aws_iam_role.lambda_exec.arn
+  depends_on = [aws_s3_bucket.lambda, aws_s3_bucket_object.lambda_code]
 }
 
 # IAM role which dictates what other AWS services the Lambda function
