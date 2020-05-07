@@ -16,9 +16,9 @@ def point(x_limit, y_limit):
 
     assert isinstance(x_limit, int)
     assert isinstance(y_limit, int)
-    
-    x = random.uniform(0,x_limit)
-    y = random.uniform(0,y_limit)
+
+    x = random.uniform(0, x_limit)
+    y = random.uniform(0, y_limit)
     return x, y
 
 
@@ -37,18 +37,20 @@ def initalize_simulation_dataframes(N, x_limit, y_limit, motion_factor=5):
     assert isinstance(y_limit, int)
 
     # Create the covid-19 dataframe, stores the state of all the actors in population
-    covid_df = pd.DataFrame(columns='X,Y,Covid-19,Day'.split(','))
-    
+    covid_df = pd.DataFrame(columns="X,Y,Covid-19,Day".split(","))
+
     for i in range(N):
-        covid_df.loc[i,'X'], covid_df.loc[i,'Y'] = point(x_limit, y_limit)
-        covid_df.loc[i,'Covid-19'] = False
-    
+        covid_df.loc[i, "X"], covid_df.loc[i, "Y"] = point(x_limit, y_limit)
+        covid_df.loc[i, "Covid-19"] = False
+
     sample_size = math.floor(motion_factor)
-    movers_list = covid_df.sample(n = sample_size).index.values.tolist()
-    
+    movers_list = covid_df.sample(n=sample_size).index.values.tolist()
+
     # Dataframe to keep track of daily statistics
-    stats_df = pd.DataFrame(columns='Healthy,Covid-19(+),Hospitalized,Cured,Dead'.split(','))
-    return covid_df , stats_df, movers_list
+    stats_df = pd.DataFrame(
+        columns="Healthy,Covid-19(+),Hospitalized,Cured,Dead".split(",")
+    )
+    return covid_df, stats_df, movers_list
 
 
 def infect(df, day, person):
@@ -64,13 +66,12 @@ def infect(df, day, person):
     assert isinstance(person, int)
     assert person < len(df)
 
-
-    if random.random() > 0.25 and day > 3: 
+    if random.random() > 0.25 and day > 3:
         return df
 
     ## If the person is not already infected, infect him/her and record the day of infection
-    if df.loc[person,'Covid-19']==False:
-        df.loc[person,'Covid-19'], df.loc[person,'Day'] = True, day
+    if df.loc[person, "Covid-19"] == False:
+        df.loc[person, "Covid-19"], df.loc[person, "Day"] = True, day
 
     return df
 
@@ -88,13 +89,13 @@ def update_stats_for_day(covid_df, stats_df, day):
     assert isinstance(stats_df, pd.core.frame.DataFrame)
     assert isinstance(day, int)
 
-    covid_list = list(covid_df['Covid-19'])
-    
-    stats_df.loc[day,'Healthy'] = covid_list.count(False)
-    stats_df.loc[day,'Covid-19(+)'] = covid_list.count(True)    
-    stats_df.loc[day,'Hospitalized'] = covid_list.count(115)    
-    stats_df.loc[day,'Cured'] = covid_list.count(7)
-    stats_df.loc[day,'Dead'] = covid_list.count(666)
+    covid_list = list(covid_df["Covid-19"])
+
+    stats_df.loc[day, "Healthy"] = covid_list.count(False)
+    stats_df.loc[day, "Covid-19(+)"] = covid_list.count(True)
+    stats_df.loc[day, "Hospitalized"] = covid_list.count(115)
+    stats_df.loc[day, "Cured"] = covid_list.count(7)
+    stats_df.loc[day, "Dead"] = covid_list.count(666)
 
     return covid_df, stats_df
 
@@ -112,10 +113,18 @@ def kill(df, kill_prob=0.005):
     assert kill_prob >= 0
     assert kill_prob <= 1
 
-    samplesize = math.floor(len(df[df['Covid-19']==True]) * kill_prob + len(df[df['Covid-19']==115]) * kill_prob)
-    if samplesize > len(df[df['Covid-19']==True]): return
-    df.loc[df[df['Covid-19']==True].sample(n = samplesize).index.values.tolist(),'Covid-19']=666
+    samplesize = math.floor(
+        len(df[df["Covid-19"] == True]) * kill_prob
+        + len(df[df["Covid-19"] == 115]) * kill_prob
+    )
+    if samplesize > len(df[df["Covid-19"] == True]):
+        return
+    df.loc[
+        df[df["Covid-19"] == True].sample(n=samplesize).index.values.tolist(),
+        "Covid-19",
+    ] = 666
     return df
+
 
 def hospitalize(df, hosp_prob=0.03):
     """
@@ -130,10 +139,15 @@ def hospitalize(df, hosp_prob=0.03):
     assert hosp_prob >= 0
     assert hosp_prob <= 1
 
-    samplesize = math.floor(len(df[df['Covid-19'] == True]) * hosp_prob)
-    if samplesize > len(df[df['Covid-19'] == True]): return
-    df.loc[df[df['Covid-19']==True].sample(n=samplesize).index.values.tolist(),'Covid-19'] = 115
+    samplesize = math.floor(len(df[df["Covid-19"] == True]) * hosp_prob)
+    if samplesize > len(df[df["Covid-19"] == True]):
+        return
+    df.loc[
+        df[df["Covid-19"] == True].sample(n=samplesize).index.values.tolist(),
+        "Covid-19",
+    ] = 115
     return df
+
 
 def cure(df, day):
     """
@@ -146,8 +160,8 @@ def cure(df, day):
     assert isinstance(df, pd.core.frame.DataFrame)
     assert isinstance(day, int)
 
-    df.loc[(df['Day'] < day - 10) & (df['Covid-19'] == True), 'Covid-19'] = 7
-    df.loc[(df['Day'] < day - 21) & (df['Covid-19'] == 115), 'Covid-19'] = 7
+    df.loc[(df["Day"] < day - 10) & (df["Covid-19"] == True), "Covid-19"] = 7
+    df.loc[(df["Day"] < day - 21) & (df["Covid-19"] == 115), "Covid-19"] = 7
     return df
 
 
@@ -161,10 +175,13 @@ def random_walk(df, movers_list, x_limit, y_limit):
     y_limit -- max range on Y-axis
     """
     for i in movers_list:
-        if (df.loc[i,'Covid-19'] == 115) or (df.loc[i,'Covid-19'] == 666): 
+        if (df.loc[i, "Covid-19"] == 115) or (df.loc[i, "Covid-19"] == 666):
             movers_list.remove(i)
 
-        df.loc[i,'X'], df.loc[i,'Y'] = (df.loc[i,'X'] + random.uniform(1, x_limit / 3)) % x_limit, (df.loc[i,'Y'] + random.uniform(1,y_limit / 3)) % y_limit
+        df.loc[i, "X"], df.loc[i, "Y"] = (
+            (df.loc[i, "X"] + random.uniform(1, x_limit / 3)) % x_limit,
+            (df.loc[i, "Y"] + random.uniform(1, y_limit / 3)) % y_limit,
+        )
 
     return df, movers_list
 
@@ -190,6 +207,7 @@ def simulate_next_day(covid_df, stats_df, day, movers_list, x_limit, y_limit):
 
     return covid_df, stats_df, day, movers_list
 
+
 def check(covid_df, i, j, yesterday_patients, dist_limit):
     """
     Checks if two people are close enough to infect eachother
@@ -207,8 +225,13 @@ def check(covid_df, i, j, yesterday_patients, dist_limit):
     assert isinstance(yesterday_patients, list)
     assert isinstance(dist_limit, float)
 
-    dist = math.sqrt((covid_df.loc[i,'X'] - covid_df.loc[j,'X']) ** 2 + (covid_df.loc[i,'Y'] - covid_df.loc[j,'Y']) ** 2)
-    flag = ((yesterday_patients[i]==True) ^ (yesterday_patients[j]==True)) and dist < dist_limit
+    dist = math.sqrt(
+        (covid_df.loc[i, "X"] - covid_df.loc[j, "X"]) ** 2
+        + (covid_df.loc[i, "Y"] - covid_df.loc[j, "Y"]) ** 2
+    )
+    flag = (
+        (yesterday_patients[i] == True) ^ (yesterday_patients[j] == True)
+    ) and dist < dist_limit
     return flag
 
 
@@ -225,12 +248,11 @@ def interact(covid_df, day, yesterday_patients, dist_limit):
     for i in range(len(covid_df)):
         for j in range(i):
             if check(covid_df, i, j, yesterday_patients, dist_limit):
-                if (covid_df.loc[i,'Covid-19'] == False) :
+                if covid_df.loc[i, "Covid-19"] == False:
                     covid_df = infect(covid_df, day, i)
                 else:
                     covid_df = infect(covid_df, day, j)
     return covid_df
- 
 
 
 def get_covid_df_plt_color(df):
@@ -243,18 +265,18 @@ def get_covid_df_plt_color(df):
     assert isinstance(df, pd.core.frame.DataFrame)
 
     # list to store colors for each person
-    cols=[]
+    cols = []
     for l in df.index:
-        if df.loc[l,'Covid-19'] == True: #Infected
-            cols.append('red')
-        elif df.loc[l,'Covid-19'] == 666: #Dead
-            cols.append('black')
-        elif df.loc[l,'Covid-19'] == 115: #Hospitalized
-            cols.append('yellow')
-        elif df.loc[l,'Covid-19'] == 7: #Cured
-            cols.append('green')
+        if df.loc[l, "Covid-19"] == True:  # Infected
+            cols.append("red")
+        elif df.loc[l, "Covid-19"] == 666:  # Dead
+            cols.append("black")
+        elif df.loc[l, "Covid-19"] == 115:  # Hospitalized
+            cols.append("yellow")
+        elif df.loc[l, "Covid-19"] == 7:  # Cured
+            cols.append("green")
         else:
-            cols.append('blue') #Healthy
+            cols.append("blue")  # Healthy
     return cols
 
 
@@ -267,18 +289,18 @@ def get_covid_stat_plt_color(stats_df):
 
     assert isinstance(stats_df, pd.core.frame.DataFrame)
 
-    cols=[]
+    cols = []
     for i in stats_df.columns:
-        if i=='Covid-19(+)': #Infected
-            cols.append('red')
-        elif i=='Dead': #Dead
-            cols.append('black')
-        elif i=='Hospitalized': #Hospitalized
-            cols.append('yellow')
-        elif i=='Cured': #Cured
-            cols.append('green')
+        if i == "Covid-19(+)":  # Infected
+            cols.append("red")
+        elif i == "Dead":  # Dead
+            cols.append("black")
+        elif i == "Hospitalized":  # Hospitalized
+            cols.append("yellow")
+        elif i == "Cured":  # Cured
+            cols.append("green")
         else:
-            cols.append('blue') #Healthy
+            cols.append("blue")  # Healthy
     return cols
 
 
@@ -305,43 +327,46 @@ def plot_day(df, fig, axs, stats_df, day, movers_list, show=False, savefig=False
     cols = get_covid_df_plt_color(df)
 
     # fig.clf()
-    
-    ld = ['Healthy','Covid-19(+)','Hospitalized','Cured','Death Toll']
+
+    ld = ["Healthy", "Covid-19(+)", "Hospitalized", "Cured", "Death Toll"]
     axs[0].cla()
-    axs[0].scatter(df['X'],df['Y'],s=4,c=cols)
+    axs[0].scatter(df["X"], df["Y"], s=4, c=cols)
     for i in movers_list:
-        axs[0].scatter(df.loc[i,'X'],df.loc[i,'Y'],s=1,facecolors='none', edgecolors='black')
-        axs[0].text(df.loc[i,'X']+0.02, df.loc[i,'Y']+0.02, str(i), fontsize=5)
+        axs[0].scatter(
+            df.loc[i, "X"], df.loc[i, "Y"], s=1, facecolors="none", edgecolors="black"
+        )
+        axs[0].text(df.loc[i, "X"] + 0.02, df.loc[i, "Y"] + 0.02, str(i), fontsize=5)
 
     cols = get_covid_stat_plt_color(stats_df)
     day_string = str(day)
-    title = 'Day' + day_string
+    title = "Day" + day_string
 
-    axs[0].set_title(title,loc='left')
+    axs[0].set_title(title, loc="left")
     axs[0].set_yticklabels([])
     axs[0].set_xticklabels([])
     axs[0].tick_params(
-        which='both',      # both major and minor ticks are affected
-        bottom=False,      # ticks along the bottom edge are off
-        top=False,         # ticks along the top edge are off
-        right=False,      # ticks along the right edge are off
-        left=False,         # ticks along the left edge are off
-        labelbottom=False) # labels along the bottom edge are off
+        which="both",  # both major and minor ticks are affected
+        bottom=False,  # ticks along the bottom edge are off
+        top=False,  # ticks along the top edge are off
+        right=False,  # ticks along the right edge are off
+        left=False,  # ticks along the left edge are off
+        labelbottom=False,
+    )  # labels along the bottom edge are off
 
     axs[1].cla()
-    axs[1].plot(stats_df.Healthy,label=ld[0],color=cols[0])
-    axs[1].plot(stats_df['Covid-19(+)'],label=ld[1],color=cols[1])
-    axs[1].plot(stats_df.Hospitalized,label=ld[2],color=cols[2])
-    axs[1].plot(stats_df.Cured,label=ld[3],color=cols[3])
-    axs[1].plot(stats_df.Dead,label=ld[4],color=cols[4])
+    axs[1].plot(stats_df.Healthy, label=ld[0], color=cols[0])
+    axs[1].plot(stats_df["Covid-19(+)"], label=ld[1], color=cols[1])
+    axs[1].plot(stats_df.Hospitalized, label=ld[2], color=cols[2])
+    axs[1].plot(stats_df.Cured, label=ld[3], color=cols[3])
+    axs[1].plot(stats_df.Dead, label=ld[4], color=cols[4])
 
-
-    axs[1].legend(bbox_to_anchor=(0, 1), loc='upper left', borderaxespad=0.)
-    plt.xlabel('Days')
+    axs[1].legend(bbox_to_anchor=(0, 1), loc="upper left", borderaxespad=0.0)
+    plt.xlabel("Days")
     if show:
         plt.pause(0.05)
-        
-    if day < 10 : day_string = '0' + day_string
-    title = 'output/Day' + day_string + '.png'
+
+    if day < 10:
+        day_string = "0" + day_string
+    title = "output/Day" + day_string + ".png"
     if savefig:
         plt.savefig(title)
