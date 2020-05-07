@@ -22,7 +22,7 @@ def point(x_limit, y_limit):
     return x, y
 
 
-def initalize_simulation_dataframes(N, x_limit, y_limit):
+def initalize_simulation_dataframes(N, x_limit, y_limit, motion_factor=5):
     """
     Initialize simulation dataframes with random data
 
@@ -43,7 +43,7 @@ def initalize_simulation_dataframes(N, x_limit, y_limit):
         covid_df.loc[i,'X'], covid_df.loc[i,'Y'] = point(x_limit, y_limit)
         covid_df.loc[i,'Covid-19'] = False
     
-    sample_size = math.floor(N/100)
+    sample_size = math.floor(motion_factor)
     movers_list = covid_df.sample(n = sample_size).index.values.tolist()
     
     # Dataframe to keep track of daily statistics
@@ -66,7 +66,7 @@ def infect(df, day, person):
 
 
     if random.random() > 0.25 and day > 3: 
-        return
+        return df
 
     ## If the person is not already infected, infect him/her and record the day of infection
     if df.loc[person,'Covid-19']==False:
@@ -76,7 +76,7 @@ def infect(df, day, person):
 
 
 def update_stats_for_day(covid_df, stats_df, day):
-	"""
+    """
     Update the statistics for the given day
     Keyword arguments:
     covid_df -- covid dataframe [X,Y,Covid-19,Day]
@@ -88,20 +88,20 @@ def update_stats_for_day(covid_df, stats_df, day):
     assert isinstance(stats_df, pd.core.frame.DataFrame)
     assert isinstance(day, int)
 
-	covid_list = list(covid_df['Covid-19'])
+    covid_list = list(covid_df['Covid-19'])
     
-    stats_df.loc[Day,'Healthy'] = covid_list.count(False)
-    stats_df.loc[Day,'Covid-19(+)'] = covid_list.count(True)    
-    stats_df.loc[Day,'Hospitalized'] = covid_list.count(115)    
-    stats_df.loc[Day,'Cured'] = covid_list.count(7)
-    stats_df.loc[Day,'Dead'] = covid_list.count(666)
+    stats_df.loc[day,'Healthy'] = covid_list.count(False)
+    stats_df.loc[day,'Covid-19(+)'] = covid_list.count(True)    
+    stats_df.loc[day,'Hospitalized'] = covid_list.count(115)    
+    stats_df.loc[day,'Cured'] = covid_list.count(7)
+    stats_df.loc[day,'Dead'] = covid_list.count(666)
 
     return covid_df, stats_df
 
 
 def kill(df, kill_prob=0.005):
-	"""
-	Kill a fraction of population given by kill_prob
+    """
+    Kill a fraction of population given by kill_prob
     Keyword arguments:
     df -- covid dataframe [X,Y,Covid-19,Day]
     kill_prob -- kill people by kill_prob (default: 0.005)
@@ -112,32 +112,32 @@ def kill(df, kill_prob=0.005):
     assert kill_prob >= 0
     assert kill_prob <= 1
 
-	samplesize = math.floor(len(df[df['Covid-19']==True]) * kill_prob + len(df[df['Covid-19']==115]) * kill_prob)
+    samplesize = math.floor(len(df[df['Covid-19']==True]) * kill_prob + len(df[df['Covid-19']==115]) * kill_prob)
     if samplesize > len(df[df['Covid-19']==True]): return
     df.loc[df[df['Covid-19']==True].sample(n = samplesize).index.values.tolist(),'Covid-19']=666
     return df
 
 def hospitalize(df, hosp_prob=0.03):
-	"""
-	Hospitalize a fraction of population given by hosp_prob
+    """
+    Hospitalize a fraction of population given by hosp_prob
     Keyword arguments:
     df -- covid dataframe [X,Y,Covid-19,Day]
     hosp_prob -- Hospitalize people by hosp_prob (default: 0.03)
     """
 
     assert isinstance(df, pd.core.frame.DataFrame)
-    assert isinstance(kill_prob, float)
+    assert isinstance(hosp_prob, float)
     assert hosp_prob >= 0
     assert hosp_prob <= 1
 
-	samplesize = math.floor(len(df[df['Covid-19'] == True]) * hosp_prob)
+    samplesize = math.floor(len(df[df['Covid-19'] == True]) * hosp_prob)
     if samplesize > len(df[df['Covid-19'] == True]): return
     df.loc[df[df['Covid-19']==True].sample(n=samplesize).index.values.tolist(),'Covid-19'] = 115
     return df
 
 def cure(df, day):
-	"""
-	Cure people after their quarantine is finished
+    """
+    Cure people after their quarantine is finished
     Keyword arguments:
     df -- covid dataframe [X,Y,Covid-19,Day]
     day -- current day
@@ -146,23 +146,23 @@ def cure(df, day):
     assert isinstance(df, pd.core.frame.DataFrame)
     assert isinstance(day, int)
 
-	df.loc[(df['Day'] < day - 10) & (df['Covid-19'] == True), 'Covid-19'] = 7
+    df.loc[(df['Day'] < day - 10) & (df['Covid-19'] == True), 'Covid-19'] = 7
     df.loc[(df['Day'] < day - 21) & (df['Covid-19'] == 115), 'Covid-19'] = 7
     return df
 
 
 def random_walk(df, movers_list, x_limit, y_limit):
-	"""
-	Talk random steps in the world
+    """
+    Talk random steps in the world
     Keyword arguments:
     df -- covid dataframe [X,Y,Covid-19,Day]
     movers_list -- list of people who are moving in the world
     x_limit -- max range on X-axis
     y_limit -- max range on Y-axis
     """
-	for i in movers_list:
+    for i in movers_list:
         if (df.loc[i,'Covid-19'] == 115) or (df.loc[i,'Covid-19'] == 666): 
-        	movers_list.remove(i)
+            movers_list.remove(i)
 
         df.loc[i,'X'], df.loc[i,'Y'] = (df.loc[i,'X'] + random.uniform(1, x_limit / 3)) % x_limit, (df.loc[i,'Y'] + random.uniform(1,y_limit / 3)) % y_limit
 
@@ -170,8 +170,8 @@ def random_walk(df, movers_list, x_limit, y_limit):
 
 
 def simulate_next_day(covid_df, stats_df, day, movers_list, x_limit, y_limit):
-	"""
-	Simulates the next day given current day data
+    """
+    Simulates the next day given current day data
     Keyword arguments:
     covid_df -- covid dataframe [X,Y,Covid-19,Day]
     stats_df -- stats dataframe [Healthy,Covid-19(+),Hospitalized,Cured,Dead]
@@ -191,8 +191,8 @@ def simulate_next_day(covid_df, stats_df, day, movers_list, x_limit, y_limit):
     return covid_df, stats_df, day, movers_list
 
 def check(covid_df, i, j, yesterday_patients, dist_limit):
-	"""
-	Checks if two people are close enough to infect eachother
+    """
+    Checks if two people are close enough to infect eachother
     Keyword arguments:
     covid_df -- covid dataframe [X,Y,Covid-19,Day]
     i -- first person
@@ -201,25 +201,24 @@ def check(covid_df, i, j, yesterday_patients, dist_limit):
     dist_limit -- csafe social distance limit
     """
 
-    assert isinstance(covid_df, pd.core.frame.DataFrame)
+    assert isinstance(covid_df, pd.core.frame.DataFrame), type(covid_df)
     assert isinstance(i, int)
     assert isinstance(j, int)
     assert isinstance(yesterday_patients, list)
     assert isinstance(dist_limit, float)
 
-	dist = math.sqrt((covid_df.loc[i,'X'] - covid_df.loc[j,'X']) ** 2 + (covid_df.loc[i,'Y'] - covid_df.loc[j,'Y']) ** 2)
+    dist = math.sqrt((covid_df.loc[i,'X'] - covid_df.loc[j,'X']) ** 2 + (covid_df.loc[i,'Y'] - covid_df.loc[j,'Y']) ** 2)
     flag = ((yesterday_patients[i]==True) ^ (yesterday_patients[j]==True)) and dist < dist_limit
     return flag
 
 
 def interact(covid_df, day, yesterday_patients, dist_limit):
-	"""
-	Infect people who interact with oneanother
+    """
+    Infect people who interact with oneanother
     Keyword arguments:
     df -- covid dataframe [X,Y,Covid-19,Day]
     day -- current day
     """
-
     assert isinstance(covid_df, pd.core.frame.DataFrame)
     assert isinstance(day, int)
 
@@ -227,12 +226,11 @@ def interact(covid_df, day, yesterday_patients, dist_limit):
         for j in range(i):
             if check(covid_df, i, j, yesterday_patients, dist_limit):
                 if (covid_df.loc[i,'Covid-19'] == False) :
-                    covid_df = infect(df, day, i)
+                    covid_df = infect(covid_df, day, i)
                 else:
-                    covid_df = infect(df, day, j)
+                    covid_df = infect(covid_df, day, j)
     return covid_df
  
-
 
 
 def get_covid_df_plt_color(df):
@@ -305,6 +303,8 @@ def plot_day(df, fig, axs, stats_df, day, movers_list, show=False, savefig=False
     assert isinstance(savefig, bool)
 
     cols = get_covid_df_plt_color(df)
+
+    # fig.clf()
     
     ld = ['Healthy','Covid-19(+)','Hospitalized','Cured','Death Toll']
     axs[0].cla()
@@ -339,8 +339,9 @@ def plot_day(df, fig, axs, stats_df, day, movers_list, show=False, savefig=False
     axs[1].legend(bbox_to_anchor=(0, 1), loc='upper left', borderaxespad=0.)
     plt.xlabel('Days')
     if show:
-        plt.show()
+        plt.pause(0.05)
+        
     if day < 10 : day_string = '0' + day_string
-    title = 'Day' + day_string + '.png'
+    title = 'output/Day' + day_string + '.png'
     if savefig:
         plt.savefig(title)
