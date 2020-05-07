@@ -63,6 +63,25 @@ WARNING: Failed to generate report: No data to report.
 
 ======================================================================= 1 passed in 0.07s =======================================================================
 ```
+Lambda function created with REST API Gateway.
+<br>
+Type in the browser the following:
+```
+https://dvgdt3t23b.execute-api.us-east-2.amazonaws.com/test
+```
+or run the following command in terminal:
+```
+https://dvgdt3t23b.execute-api.us-east-2.amazonaws.com/test
+```
+Run lambda function with arguments:
+```
+https://dvgdt3t23b.execute-api.us-east-2.amazonaws.com/test/my-resource?myParam=Hello%20from%20API%20Gateway!
+```
+or from terminal:
+```
+curl -X GET https://dvgdt3t23b.execute-api.us-east-2.amazonaws.com/test/my-resource?myParam=Hello%20from%20API%20Gateway!D
+
+```
 
 ### Infrastructure setup
 1. All IaC go into Terraform folder
