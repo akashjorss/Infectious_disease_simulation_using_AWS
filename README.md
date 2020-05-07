@@ -64,3 +64,12 @@ WARNING: Failed to generate report: No data to report.
 ======================================================================= 1 passed in 0.07s =======================================================================
 ```
 
+### Infrastructure setup
+1. All IaC go into Terraform folder
+2. We create build pipeline also using terraform
+Note how variables are passed in
+```shell script
+terraform init
+terraform apply -var="github_personal_token=1111aaaaa" -var="github_username=username"
+```
+Verify plan shown and accept it with `yes`
