@@ -9,3 +9,8 @@ variable "github_username" {
   type        = string
   description = "Username to use for cloning"
 }
+
+variable "aws_region" {
+  default     = "eu-west-1"
+  type        = string
+}

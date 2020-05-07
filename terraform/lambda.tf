@@ -10,7 +10,6 @@ resource "aws_lambda_function" "lambda_package" {
   # exported in that file.
   handler = "lambda_function.handler"
   runtime = "python3.8"
-
   role = aws_iam_role.lambda_exec.arn
 }
 

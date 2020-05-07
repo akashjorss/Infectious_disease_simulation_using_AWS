@@ -1,6 +1,3 @@
-data "aws_caller_identity" "current" {}
-data "aws_region" "current" {}
-
 resource "aws_iam_role" "code_build_iam" {
   name = "CodeBuildIAM"
 
@@ -57,7 +54,7 @@ resource "aws_iam_role_policy" "code_build_iam_policy" {
         "ec2:CreateNetworkInterfacePermission"
       ],
       "Resource": [
-"arn:aws:ec2:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:network-interface/*"
+"arn:aws:ec2:${var.aws_region}:${data.aws_caller_identity.current.account_id}:network-interface/*"
       ]
     }
   ]
