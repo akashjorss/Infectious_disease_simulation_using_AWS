@@ -1,7 +1,3 @@
-provider "aws" {
-  version = "~> 2.60"
-}
-
 data "aws_caller_identity" "current" {}
 data "aws_region" "current" {}
 
@@ -81,7 +77,7 @@ resource "aws_codebuild_project" "contact_tracking" {
   build_timeout  = "5"
   queued_timeout = "5"
   service_role   = aws_iam_role.code_build_iam.arn
-  badge_enabled = "true"
+  badge_enabled  = "true"
 
   artifacts {
     type = "NO_ARTIFACTS"
@@ -96,7 +92,7 @@ resource "aws_codebuild_project" "contact_tracking" {
 
   logs_config {
     cloudwatch_logs {
-      status = "ENABLED"
+      status      = "ENABLED"
       group_name  = "project-contact-tracing"
       stream_name = "build-pipeline"
     }
