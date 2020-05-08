@@ -34,6 +34,7 @@ resource "aws_lambda_function" "lambda_package" {
   handler = "lambda_function.lambda_handler"
   runtime = "python3.8"
   role = aws_iam_role.lambda_exec.arn
+  source_code_hash = filebase64sha256(local.lambda_source_file)
   depends_on = [aws_s3_bucket.lambda, aws_s3_bucket_object.lambda_code]
 }
 
