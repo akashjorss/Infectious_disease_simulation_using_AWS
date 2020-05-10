@@ -26,7 +26,7 @@ control systems like GitHub, an error could be traced back to the exact change w
 
 Github flow is one of the common methodologies to do CI.
 <br><br>
-![github_flow](github_flow.png)
+![github_flow](resources/github_flow.png)
 <br><br>
 Usually a developer, when adding a new feature to a project follows the following steps under PR approach:
 <ol>
@@ -89,7 +89,7 @@ In the deployment phase, the package is opened and reviewed with a system
 of automated checks. If the checks fail the package is rejected.
 When the checks pass the package is automatically deployed to production.
 <br><br>
-![CD Diagram](cd_diagram.png)
+![CD Diagram](resources/cd_diagram.png)
 <br><br>
 Following are the practices of CD:
 <ul>
@@ -153,19 +153,19 @@ This zip becomes the source of our lambda function that we will create in furthe
 4. Following steps in [Task 6.2: Serverless example](https://github.com/CCBDA-UPC/Assignments-2020/blob/master/Lab06.md#task-62-serverless-example)
 create a lambda, refer to images belows to identify differing configurations.
 <br><br>
-![Lambda config](lambda-function_config.png)
+![Lambda config](resources/lambda-function_config.png)
 <br><br>
-![Lambda config](lambda-api_gateway_config.png)
+![Lambda config](resources/lambda-api_gateway_config.png)
 <br><br>
 5. Once lambda has been created, navigate to the `Function code` block and select `Upload .zip file` from `Code Entry Type`
 dropdown, select zip created in step 3.
 <br><br>
-![Code as ZIP](lambda-zip_upload_handler.png)
+![Code as ZIP](resources/lambda-zip_upload_handler.png)
 <br><br>
 Be sure to change the handler info as given in the image above.
 6. Click on the tab API Gateway, as shown in the screen capture below, to obtain the API Endpoint URL.
 <br><br>
-![Lambda Endpoint URL](lambda-designer.png)
+![Lambda Endpoint URL](resources/lambda-designer.png)
 <br><br>
 Navigate to the URL and ensure you see the following JSON response.
 ```json
@@ -191,40 +191,40 @@ said code changes.
 
 ### Steps to follow:
 1. Inside the AWS Console search and navigate to 'AWS CodeBuild.'
-![Seach CodeBuild](CodeBuild_Search.png)
+![Seach CodeBuild](resources/CodeBuild_Search.png)
 
 2. Now let's start by creating a new build project by clicking 'Create build project'.
 
 3. To create a build project successfully, let us break down and carry it one sub-section at a time.
 Starting with the 'Project Configuration'.
 <br><br>
-![Project config](CodeBuild_Project_Config.jpg)
+![Project config](resources/CodeBuild_Project_Config.jpg)
 <br><br>
 
 4. Proceeding with the 'Source Details'. In this case, we need make use of the code stored in Github by pointing the AWS to the correct repository. Please choose source provider as 'Github Enterprise.'
 <br><br>
-![Source Details](CodeBuild_SourceDetails_2.jpeg)
+![Source Details](resources/CodeBuild_SourceDetails_2.jpeg)
 <br><br>
  Additionally, for authentication purposes, we generated 'Personal OAuth token'. This token can be generated from 'developer' tab under the GitHub settings page.
  <br><br>
-![Github Developer Settings](CodeBuild_Github_DeveloperSettings.jpg)
+![Github Developer Settings](resources/CodeBuild_Github_DeveloperSettings.jpg)
 <br><br>
-![Github Token](CodeBuild_Github_PersonalAccessToken.jpg)
+![Github Token](resources/CodeBuild_Github_PersonalAccessToken.jpg)
 <br><br>
-![Github Generate Token](CodeBuild_Github_PersonalAccessToken_GENERATE.jpg)
+![Github Generate Token](resources/CodeBuild_Github_PersonalAccessToken_GENERATE.jpg)
 <br><br>
 This generated token needs to pasted under the 'GitHub Enterprise personal access token.'
 The source version needs to be 'https://<username>@github.com/anantgupta04/CC-ResearchProject.git' where username is your github username
 Before proceeding for next stage, please choose the 'Webhook-optional'. Additonal information can be found in the [documentation](https://developer.github.com/webhooks/).
  <br><br>
-![Webhook Token](CodeBuild_Source_Webhook.png)
+![Webhook Token](resources/CodeBuild_Source_Webhook.png)
  <br><br>
 
 5. We move to the 'Environment' stage. For this execution, we make use of 'Managed Image' and 'Amazon Linux 2 ' as the operating system. Further configurations, can be found in the following image. We are keeping the compute minimum for reducing costs.
 <br><br>
-![Environment1](CodeBuild_EnvironmentDetails.jpg)
+![Environment1](resources/CodeBuild_EnvironmentDetails.jpg)
 <br><br>
-![Environment2](CodeBuild_EnvironmentDetails_2.jpg)
+![Environment2](resources/CodeBuild_EnvironmentDetails_2.jpg)
 <br><br>
 
 6. Proceeding with the 'Buildspec' level. We do not make any alterations because build specifications is configured and version controlled in the repository, and this is the best practice, giving greater flexibility to developers to add phases or checks as necessary.
@@ -235,16 +235,16 @@ The build spec config has been explained in depth at [buildspec.yml explained](#
 
 8. 'Logs' stage, we continue with the default 'CloudWatch logs-optional.'
 <br><br>
-![CloudWatch](CodeBuild_Artifacts_Logs.jpg)
+![CloudWatch](resources/CodeBuild_Artifacts_Logs.jpg)
 <br><br>
 
 Finally after this detailed configurations, we click 'Create build project'.
 To test the build, click 'Start Build' with timeout '0' hour and '5' minutes.
 The reports and logs validate the successful build of project.
 <br><br>
-![Build Success 1](CodeBuild_Source_BuildSuccess.png)
+![Build Success 1](resources/CodeBuild_Source_BuildSuccess.png)
 <br><br>
-![Build Success 2](CodeBuild_SuccessfulBuild.jpg)
+![Build Success 2](resources/CodeBuild_SuccessfulBuild.jpg)
 <br><br>
 ***
 
