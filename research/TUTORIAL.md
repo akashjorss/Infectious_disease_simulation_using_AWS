@@ -12,28 +12,28 @@
 
 ***
 
-## What is CI and CD
+## What is CI
 Continuous Integration is popular software development methodology which minimises the overhead for integrating
 various features of a software project. <br>
 Software integration, especially for big projects, is a mammoth task. Usually, developers work on separate
-features in a software and then finally they integrate everything together to make single, functional software
+features and then finally they integrate everything together to make single, functional software
 package. Or at least that is how it used to be, before we could not scale this final step efficiently. 
 The software community quickly realised that solving integration errors should be done right after a new piece of 
 code, however small, is added to the codebase. This way, if a log of changes is maintained, as in the version
-control system like GitHub, an error could be traced back to the exact change when it happened. <br>
+control systems like GitHub, an error could be traced back to the exact change when it happened. <br>
 
 Github flow is one of the common methodologies to do CI. 
 ![github_flow](github_flow.png)<br>
 Usually a developer, when adding a new feature to a project follows the following steps under PR approach:
 <ol>
-<li>Download the updated the Master Branch in Github. This branch is the main codebase for a project
+<li>Download the updated Master Branch in Github. This branch is the main codebase for a project
 and should be deployable at all times.</li>
 <li>Create and checkout a new branch. </li>
 <li>Make changes to the code base. Add new code. </li>
 <li>Build the project and do automatic unit testing on the local machine. </li>
 <li>Commit the changes and push to the remote repository. </li>
 <li>Create a Pull Request (PR) to merge this feature branch with the master branch. </li>
-<li>At this point, the master branch would have changed since when this
+<li>At this point, the master branch would have changed since the time this
 feature branch was checked out. This could result in merge conflicts. Solve these conflicts. </li>
 <li>Also other developers may have some comments on the code. Discuss and review. </li>
 <li>Merge the feature branch into the master branch.</li>
@@ -53,11 +53,12 @@ Some good practices to employ in CI are as follows:
 <li>Everyone can see what's happening. </li>
 <li>Automate Deployment. </li>
 </ul>
-For more information on the above, checkout the paper by Martin Fowler:
+For more information on the above, check out the paper by Martin Fowler:
 Fowler, Martin, and Matthew Foemmel. "Continuous integration." (2006).
 
+## What is CD? 
 
-</ul>
+
 
 
 ## AWS Services For CI/CD
