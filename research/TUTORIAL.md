@@ -12,28 +12,31 @@
 
 ***
 
-## What is CI and CD
+## What is CI
 Continuous Integration is popular software development methodology which minimises the overhead for integrating
 various features of a software project. <br>
 Software integration, especially for big projects, is a mammoth task. Usually, developers work on separate
+features and then finally they integrate everything together to make single, functional software
+package. Or at least that is how it used to be, before we could not scale this final step efficiently.
+The software community quickly realised that solving integration errors should be done right after a new piece of
 features in a software and then finally they integrate everything together to make single, functional software
 package. Or at least that is how it used to be, before we could not scale this final step efficiently.
 The software community quickly realised that solving integration errors should be done right after a new piece of
 code, however small, is added to the codebase. This way, if a log of changes is maintained, as in the version
-control system like GitHub, an error could be traced back to the exact change when it happened. <br>
+control systems like GitHub, an error could be traced back to the exact change when it happened. <br>
 
 Github flow is one of the common methodologies to do CI.
 ![github_flow](github_flow.png)<br>
 Usually a developer, when adding a new feature to a project follows the following steps under PR approach:
 <ol>
-<li>Download the updated the Master Branch in Github. This branch is the main codebase for a project
+<li>Download the updated Master Branch in Github. This branch is the main codebase for a project
 and should be deployable at all times.</li>
 <li>Create and checkout a new branch. </li>
 <li>Make changes to the code base. Add new code. </li>
 <li>Build the project and do automatic unit testing on the local machine. </li>
 <li>Commit the changes and push to the remote repository. </li>
 <li>Create a Pull Request (PR) to merge this feature branch with the master branch. </li>
-<li>At this point, the master branch would have changed since when this
+<li>At this point, the master branch would have changed since the time this
 feature branch was checked out. This could result in merge conflicts. Solve these conflicts. </li>
 <li>Also other developers may have some comments on the code. Discuss and review. </li>
 <li>Merge the feature branch into the master branch.</li>
@@ -53,10 +56,49 @@ Some good practices to employ in CI are as follows:
 <li>Everyone can see what's happening. </li>
 <li>Automate Deployment. </li>
 </ul>
-For more information on the above, checkout the paper by Martin Fowler:
+For more information on the above, check out the paper by Martin Fowler:
 Fowler, Martin, and Matthew Foemmel. "Continuous integration." (2006).
 
-
+## What is CD?
+CD can either stand for Continuous Delivery or Continuous Deployment. <br>
+Continuous delivery is an approach where teams release quality products
+frequently and predictably from source code repository to production in an automated fashion.<br>
+Continuous Deployment (CD) is a software release process that uses automated testing to validate
+if changes to a codebase are correct and stable for immediate
+autonomous deployment to a production environment.<br>
+Continuous delivery is needed to ensure Continuous Deployment. So, here we focus
+on Continuous Deployment and henceforth refer to it as CD. <br>
+Software market is a fast moving one. So, it gives competitive advantage to businesses
+to respond to changing market demands as soon as possible. For example,
+if a user submits a bug report, the developers of that software could respond
+quickly by fixing the bug and employing CI and then CD to quickly deploy the fixed
+software package. Also, if the team has a new idea, it can quickly
+develop and deploy that feature. <br>
+Continuous deployment involves building a pipeline which involves automated
+tests, build and deployment.
+In the delivery phase, developers will review and merge code changes that are
+then packaged into an artifact. This package is then moved to a production
+environment where it awaits approval to be opened for deployment.  
+In the deployment phase, the package is opened and reviewed with a system
+of automated checks. If the checks fail the package is rejected.
+When the checks pass the package is automatically deployed to production.
+![CD Diagram](cd-diagram.png)
+<br>
+Following are the practices of CD:
+<ul>
+<li>Test-driven development: as opposed to delivering the code first producing
+the test coverage after.</li>
+<li>Single method of deployment: To avoid breaking the CD flow. </li>
+<li>Containerization: To ensure that the software behaves in the same way
+on all platforms.</li>
+</ul>
+The disadvantages of using CD is the initial engineering cost of the deployment
+pipeline and its maintainence to ensure the smooth functionality at all times.
+There are many tools available to help in this process. They are classified as follows:
+<ul>
+<li>Automated testing.</li>
+<li>Rolling deployments.</li>
+<li>Rolling deployments.</li>
 </ul>
 
 
@@ -88,29 +130,25 @@ Our end goal is to deploy a lambda that responds with the `hello ${username}` wh
 
 ### Steps:
 1. Contrary to [Task 6.2: Serverless example](https://github.com/CCBDA-UPC/Assignments-2020/blob/master/Lab06.md#task-62-serverless-example)
-for lambda function code will be populated by a zip file in S3. This is one of the tenants of the CI/CD, make deployment
+lambda function code will be populated by a zip file. This is one of the tenants of the CI/CD, make deployment
 separate from the code artifact.
-2. First we will create a bucket which will host our lambda code, remember buckets names have to be globally unique.
-![S3 bucket creation](lambda-bucket_creation.png)
-3. Clone our [tutorial repository](https://github.com/anantgupta04/CC-ResearchProject)
-4. Create a zip file `hello_user.zip` containing `hello_user.py`
+2. Clone our [tutorial repository](https://github.com/anantgupta04/CC-ResearchProject)
+3. Create a zip file `hello_user.zip` containing `hello_user.py`
 Readers in *nix environments can run the below command to generate this zip
 ```shell script
 zip hello_user.zip hello_user.py
 ```
-5. Upload `hello_user.zip` into S3 bucket created in step 2.
-![Zip uploaded](lambda-zip_uploaded.png)
 This zip becomes the source of our lambda function that we will create in further steps.
-6. Following steps in [Task 6.2: Serverless example](https://github.com/CCBDA-UPC/Assignments-2020/blob/master/Lab06.md#task-62-serverless-example)
+4. Following steps in [Task 6.2: Serverless example](https://github.com/CCBDA-UPC/Assignments-2020/blob/master/Lab06.md#task-62-serverless-example)
 create a lambda, refer to images belows to identify differing configurations.
 ![Lambda config](lambda-function_config.png)
 ![Lambda config](lambda-api_gateway_config.png)
-7. Once lambda has been created, navigate to the `Function code` block and select `Code entry type` from `Code Entry Type`
-dropdown and insert object URL to the zip file you had uploaded to S3 in step 5.
-The object URL can be found in the overview tab of the zip file.
+5. Once lambda has been created, navigate to the `Function code` block and select `Upload .zip file` from `Code Entry Type`
+dropdown, select zip created in step 3.
+![Code as ZIP](lambda-zip_uploaded.png)
 Be sure to change the handler info as given in the image below.
 ![Lambda use S3](lambda-s3_code_load.png)
-8. Click on the tab API Gateway, as shown in the screen capture below, to obtain the API Endpoint URL.
+6. Click on the tab API Gateway, as shown in the screen capture below, to obtain the API Endpoint URL.
 ![Lambda Endpoint URL](lambda-designer.png)
 Navigate to the URL and ensure you see the following JSON response.
 ```json
@@ -128,12 +166,10 @@ For this purpose, we make use of 'AWS CodeBuild'. This build will be used during
 3. To create a build successfully, let us break down and carry it one sub-section at a time.
 Starting with the 'Project Configuration'.
 ![Project config](CodeBuild_Project_Config.jpg)
-4. Proceeding with the 'Source Details'. In this case, we need make use of the code stored in Github by pointing the AWS to the correct repository. Please choose source provider as 'Github Enterprise.'
-![Source Details](CodeBuild_SourceDetails_2.jpg)
-Additionally, for authentication purposes, we generated 'Personal OAuth token'. This token can be generated from 'developer' tab under the GitHub settings page.
+4. Proceeding with the 'Source Details'. In this case, we need make use of the code stored in Github by pointing the AWS to the correct repository. Please choose source provider as 'Github Enterprise.' Additionally, for authentication purposes, we generated 'Personal OAuth token'.This token can be generated from 'developer' tab under the GitHub settings page.
+![Source Details](CodeBuild_SourceDetails.jpg)
 ![Github Developer Settings](CodeBuild_Github_DeveloperSettings.jpg)
 ![Github Token](CodeBuild_Github_PersonalAccessToken.jpg)
 ![Github Generate Token](CodeBuild_Github_PersonalAccessToken_GENERATE.jpg)
 
-5.
 ***
