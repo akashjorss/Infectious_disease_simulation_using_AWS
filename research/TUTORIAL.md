@@ -244,6 +244,9 @@ the unit test specification, gives all required information to complete this tas
 {"message": "Hello CI CD Developer!"}
 ```
 
+8. Include `Build Badge` in your repo so that visitors to your repo know the current state of the build. 
+
+***
 ## buildspec.yml explained
 
 1.In the `install` step, we specify what runtime is needed for out build, since our lambda is a python function, we set runtime as `python: 3.7`
