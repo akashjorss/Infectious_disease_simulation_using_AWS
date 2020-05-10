@@ -12,7 +12,7 @@
 
 ***
 
-## What is CI
+## What is CI 
 Continuous Integration is popular software development methodology which minimises the overhead for integrating
 various features of a software project. <br>
 Software integration, especially for big projects, is a mammoth task. Usually, developers work on separate
@@ -81,8 +81,9 @@ then packaged into an artifact. This package is then moved to a production
 environment where it awaits approval to be opened for deployment.  
 In the deployment phase, the package is opened and reviewed with a system 
 of automated checks. If the checks fail the package is rejected. 
-When the checks pass the package is automatically deployed to production.
-![CD Diagram](cd-diagram.png)
+When the checks pass the package is automatically deployed to production.<br>
+<img src="cd-diagram.png" width="250" height="250" align = "center" style="float:center">
+
 <br>
 Following are the practices of CD:
 <ul>
