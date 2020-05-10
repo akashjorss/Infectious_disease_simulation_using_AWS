@@ -217,6 +217,13 @@ The reports and logs validate the successful build of project.
 
 ## Task
 To get a feel of a failing pipeline and to achieve our initial goal of a lambda to show `username` we advise the reader to follow the below steps.
+Associate `AWSLambdaFullAccess` policy to service account created for your code build pipeline. 
+If this is not done you are likely to see the following exception 
+
+```text
+An error occurred (AccessDeniedException) when calling the UpdateFunctionCode operation: User: arn:aws:sts::<<AWS_account_id>>:assumed-role/<<code_build_service_account_name>>/AWSCodeBuild-36062024-787d-4273-8a58-b10fce293594 is not authorized to perform: lambda:UpdateFunctionCode on resource: arn:aws:lambda:us-east-1:<<AWS_account_id>>:function:hello_user
+```
+
 1.Modify `test_hello_user` function `test_hello_world.py` in the tutorial repository to
 ```python
 def test_hello_user():
