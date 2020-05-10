@@ -162,16 +162,45 @@ For this purpose, we make use of 'AWS CodeBuild'. This build will be used during
 ###Steps to follow:
 1. Inside the AWS Console search and navigate to the 'AWS CodeBuild.'
 ![Seach CodeBuild](CodeBuild_Search.png)
+
 2. Now let's start by creating a new build project by clicking 'Create build project'.
+
 3. To create a build successfully, let us break down and carry it one sub-section at a time.
 Starting with the 'Project Configuration'.
 ![Project config](CodeBuild_Project_Config.jpg)
+
 4. Proceeding with the 'Source Details'. In this case, we need make use of the code stored in Github by pointing the AWS to the correct repository. Please choose source provider as 'Github Enterprise.'
 ![Source Details](CodeBuild_SourceDetails_2.jpeg)
  Additionally, for authentication purposes, we generated 'Personal OAuth token'. This token can be generated from 'developer' tab under the GitHub settings page.
-
 ![Github Developer Settings](CodeBuild_Github_DeveloperSettings.jpg)
 ![Github Token](CodeBuild_Github_PersonalAccessToken.jpg)
 ![Github Generate Token](CodeBuild_Github_PersonalAccessToken_GENERATE.jpg)
+This generated the token needs to pasted under the 'GitHub Enterprise personal access token.'
+The source version needs to be 'https://github.com/anantgupta04/CC-ResearchProject.git'
+Before proceeding for next stage, please choose the 'Webhook-optional'. Additonal information can be found in the [documentation](https://developer.github.com/webhooks/).
+![Webhook Token](CodeBuild_Source_Webhook.png)
 
+5. We move on the 'Environment' stage. For this execution, we make use of 'Managed Image' and 'Amazon Linux 2 ' as the operating system. Further configurations, can be found as in the following image. We keeping computation power to the minimalistic for reducing costs.
+![Environment1](CodeBuild_EnvironmentDetails)
+![Environment2](CodeBuild_EnvironmentDetails_2)
+
+6. Proceeding with the 'Buildspec' level. We do not make any alterations, since we generate the file following the default syntax 'buildspec.yml'. The contents of the yml file:
+```
+version: 0.2
+phases:
+  install:
+    runtime-versions:
+      python: 3.7
+  pre_build:
+    commands:
+      - pip install -r requirements.txt
+      - pytest
+```
+
+7. For 'Artifacts' stage, we proceed without making any changes since we plan to create the entire program structure as a zip.
+
+8. 'Logs' stage, we continue with the default 'CloudWatch logs-optional.'
+![CloudWatch](CodeBuild_Artifacts_Logs.jpg)
+
+Finally after this detailed configurations, we click 'Create  build project'.
 ***
