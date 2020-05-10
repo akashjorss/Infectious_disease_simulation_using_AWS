@@ -7,6 +7,7 @@
 3. [Problem Statement](#problem-statement)
 4. [Create a Lambda](#create-a-lambda)
 5. [Create a CodeBuild project](#create-a-code-build-environment-for-the-pipeline)
+6. [Task](#task)
 
 ***
 
