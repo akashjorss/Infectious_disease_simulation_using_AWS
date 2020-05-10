@@ -167,7 +167,7 @@ For this purpose, we make use of 'AWS CodeBuild'. This build will be used during
 Starting with the 'Project Configuration'.
 ![Project config](CodeBuild_Project_Config.jpg)
 4. Proceeding with the 'Source Details'. In this case, we need make use of the code stored in Github by pointing the AWS to the correct repository. Please choose source provider as 'Github Enterprise.'
-![Source Details](CodeBuild_SourceDetails_2.jpg)
+![Source Details](CodeBuild_SourceDetails_2.jpeg)
  Additionally, for authentication purposes, we generated 'Personal OAuth token'. This token can be generated from 'developer' tab under the GitHub settings page.
 
 ![Github Developer Settings](CodeBuild_Github_DeveloperSettings.jpg)
