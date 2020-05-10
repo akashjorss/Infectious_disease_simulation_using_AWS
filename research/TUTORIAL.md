@@ -4,13 +4,9 @@
 
 1. [What is CI](#what-is-ci)
 2. [What is CD](#what-is-cd)
-3. [AWS services For CI/CD](#aws-services-for-cicd)
-    1. Code Build
-    2. Code Deploy
-    3. Code Pipeline
-4. [Problem Statement](#problem-statement)
-5. [Create a Lambda](#create-a-lambda)
-6. [Create a CodeBuild project](#create-a-code-build-environment-for-the-pipeline)
+3. [Problem Statement](#problem-statement)
+4. [Create a Lambda](#create-a-lambda)
+5. [Create a CodeBuild project](#create-a-code-build-environment-for-the-pipeline)
 
 ***
 
@@ -109,9 +105,6 @@ There are many tools available to help in this process. They are classified as f
 </ul>
 
 For more information, check out this article: https://www.atlassian.com/continuous-delivery/continuous-deployment
-
-## AWS Services For CI/CD
-
 ***
 
 ## Problem Statement
