@@ -16,13 +16,19 @@
 Continuous Integration is popular software development methodology which minimises the overhead for integrating
 various features of a software project. <br>
 Software integration, especially for big projects, is a mammoth task. Usually, developers work on separate
+<<<<<<< HEAD
 features and then finally they integrate everything together to make single, functional software
 package. Or at least that is how it used to be, before we could not scale this final step efficiently. 
 The software community quickly realised that solving integration errors should be done right after a new piece of 
+=======
+features in a software and then finally they integrate everything together to make single, functional software
+package. Or at least that is how it used to be, before we could not scale this final step efficiently.
+The software community quickly realised that solving integration errors should be done right after a new piece of
+>>>>>>> 93e6b0807845f620b8e750c7665515ea4c79eb29
 code, however small, is added to the codebase. This way, if a log of changes is maintained, as in the version
 control systems like GitHub, an error could be traced back to the exact change when it happened. <br>
 
-Github flow is one of the common methodologies to do CI. 
+Github flow is one of the common methodologies to do CI.
 ![github_flow](github_flow.png)<br>
 Usually a developer, when adding a new feature to a project follows the following steps under PR approach:
 <ol>
@@ -162,7 +168,7 @@ For this purpose, we make use of 'AWS CodeBuild'. This build will be used during
 
 ###Steps to follow:
 1. Inside the AWS Console search and navigate to the 'AWS CodeBuild.'
-![Seach CodeBuild](SearchCodeBuild_1.jpg)
+![Seach CodeBuild](CodeBuild_Search.png)
 2. Now let's start by creating a new build project by clicking 'Create build project'.
 3. To create a build successfully, let us break down and carry it one sub-section at a time.
 Starting with the 'Project Configuration'.
