@@ -106,6 +106,7 @@ There are many tools available to help in this process. They are classified as f
 <li>Monitoring and alerts.</li>
 </ul>
 
+For more information, check out this article: https://www.atlassian.com/continuous-delivery/continuous-deployment
 
 ## AWS Services For CI/CD
 
