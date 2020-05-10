@@ -165,9 +165,8 @@ create a lambda, refer to images belows to identify differing configurations.
 ![Lambda config](lambda-api_gateway_config.png)
 5. Once lambda has been created, navigate to the `Function code` block and select `Upload .zip file` from `Code Entry Type`
 dropdown, select zip created in step 3.
-![Code as ZIP](lambda-zip_uploaded.png)
-Be sure to change the handler info as given in the image below.
-![Lambda use S3](lambda-s3_code_load.png)
+![Code as ZIP](lambda-zip_upload_handler.png)
+Be sure to change the handler info as given in the image above.
 6. Click on the tab API Gateway, as shown in the screen capture below, to obtain the API Endpoint URL.
 ![Lambda Endpoint URL](lambda-designer.png)
 Navigate to the URL and ensure you see the following JSON response.
