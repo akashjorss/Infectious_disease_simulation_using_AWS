@@ -191,6 +191,8 @@ Starting with the 'Project Configuration'.
 ![Github Generate Token](CodeBuild_Github_PersonalAccessToken_GENERATE.jpg)
 This generated the token needs to pasted under the 'GitHub Enterprise personal access token.'
 The source version needs to be 'https://<username>@github.com/anantgupta04/CC-ResearchProject.git'
+You can also use OAuth based authentiation, we recommend personal access token based method as projects under organizations (as is the case with our course project)
+won't be available with OAuth access. 
 Before proceeding for next stage, please choose the 'Webhook-optional'. Additonal information can be found in the [documentation](https://developer.github.com/webhooks/).
 ![Webhook Token](CodeBuild_Source_Webhook.png)
 
