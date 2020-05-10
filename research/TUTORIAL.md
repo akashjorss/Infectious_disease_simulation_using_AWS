@@ -122,20 +122,6 @@ We want to create a lambda function that will be tested and deployed if test pas
 
 ***
 
-## AWS Services For CI/CD
-
-***
-
-## Problem Statement
-We want to create a lambda function that will be tested and deployed if test pass.
-1. A new commit reaches Github
-2. Build pipeline will be triggered
-3. Tests run
-4. Artifacts will be created
-5. Update Lambda use new code artifact
-
-***
-
 ## Create a Lambda
 First lets create a lambda function for use in this tutorial, note the intention of this tutorial is to understand the
 importance of CI and CD and lambda is a tool we used to demonstrate this. The steps listed below closely mimics
