@@ -149,7 +149,7 @@ This zip becomes the source of our lambda function that we will create in furthe
 4. Following steps in [Task 6.2: Serverless example](https://github.com/CCBDA-UPC/Assignments-2020/blob/master/Lab06.md#task-62-serverless-example)
 create a lambda, refer to images belows to identify differing configurations.
 ![Lambda config](lambda-function_config.png)
-![Lambda config](lambda-api_gateway_config.png)
+![Lambda config](lambda-api_gateway_config.png)<br>
 5. Once lambda has been created, navigate to the `Function code` block and select `Upload .zip file` from `Code Entry Type`
 dropdown, select zip created in step 3.
 ![Code as ZIP](lambda-zip_upload_handler.png)
