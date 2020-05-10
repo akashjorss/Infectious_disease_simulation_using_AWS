@@ -48,8 +48,7 @@ def initalize_simulation_dataframes(N, x_limit, y_limit, motion_factor=5):
 
     # Dataframe to keep track of daily statistics
     stats_df = pd.DataFrame(
-        columns="Healthy,Covid-19(+),Hospitalized,Cured,Dead".split(",")
-    )
+        columns="Healthy,Covid-19(+),Hospitalized,Cured,Dead".split(","))
     return covid_df, stats_df, movers_list
 
 
@@ -114,15 +113,12 @@ def kill(df, kill_prob=0.005):
     assert kill_prob <= 1
 
     samplesize = math.floor(
-        len(df[df["Covid-19"] == True]) * kill_prob
-        + len(df[df["Covid-19"] == 115]) * kill_prob
-    )
+        len(df[df["Covid-19"] == True]) * kill_prob +
+        len(df[df["Covid-19"] == 115]) * kill_prob)
     if samplesize > len(df[df["Covid-19"] == True]):
         return
-    df.loc[
-        df[df["Covid-19"] == True].sample(n=samplesize).index.values.tolist(),
-        "Covid-19",
-    ] = 666
+    df.loc[df[df["Covid-19"] == True].sample(
+        n=samplesize).index.values.tolist(), "Covid-19", ] = 666
     return df
 
 
@@ -142,10 +138,8 @@ def hospitalize(df, hosp_prob=0.03):
     samplesize = math.floor(len(df[df["Covid-19"] == True]) * hosp_prob)
     if samplesize > len(df[df["Covid-19"] == True]):
         return
-    df.loc[
-        df[df["Covid-19"] == True].sample(n=samplesize).index.values.tolist(),
-        "Covid-19",
-    ] = 115
+    df.loc[df[df["Covid-19"] == True].sample(
+        n=samplesize).index.values.tolist(), "Covid-19", ] = 115
     return df
 
 
@@ -203,7 +197,8 @@ def simulate_next_day(covid_df, stats_df, day, movers_list, x_limit, y_limit):
     covid_df = kill(covid_df)
     covid_df = hospitalize(covid_df)
     covid_df = cure(covid_df, day)
-    covid_df, movers_list = random_walk(covid_df, movers_list, x_limit, y_limit)
+    covid_df, movers_list = random_walk(covid_df, movers_list, x_limit,
+                                        y_limit)
 
     return covid_df, stats_df, day, movers_list
 
@@ -225,13 +220,10 @@ def check(covid_df, i, j, yesterday_patients, dist_limit):
     assert isinstance(yesterday_patients, list)
     assert isinstance(dist_limit, float)
 
-    dist = math.sqrt(
-        (covid_df.loc[i, "X"] - covid_df.loc[j, "X"]) ** 2
-        + (covid_df.loc[i, "Y"] - covid_df.loc[j, "Y"]) ** 2
-    )
-    flag = (
-        (yesterday_patients[i] == True) ^ (yesterday_patients[j] == True)
-    ) and dist < dist_limit
+    dist = math.sqrt((covid_df.loc[i, "X"] - covid_df.loc[j, "X"])**2 +
+                     (covid_df.loc[i, "Y"] - covid_df.loc[j, "Y"])**2)
+    flag = ((yesterday_patients[i] == True) ^
+            (yesterday_patients[j] == True)) and dist < dist_limit
     return flag
 
 
@@ -304,7 +296,14 @@ def get_covid_stat_plt_color(stats_df):
     return cols
 
 
-def plot_day(df, fig, axs, stats_df, day, movers_list, show=False, savefig=False):
+def plot_day(df,
+             fig,
+             axs,
+             stats_df,
+             day,
+             movers_list,
+             show=False,
+             savefig=False):
     """
     Plot the simulation results for the day
     Keyword arguments:
@@ -332,10 +331,15 @@ def plot_day(df, fig, axs, stats_df, day, movers_list, show=False, savefig=False
     axs[0].cla()
     axs[0].scatter(df["X"], df["Y"], s=4, c=cols)
     for i in movers_list:
-        axs[0].scatter(
-            df.loc[i, "X"], df.loc[i, "Y"], s=1, facecolors="none", edgecolors="black"
-        )
-        axs[0].text(df.loc[i, "X"] + 0.02, df.loc[i, "Y"] + 0.02, str(i), fontsize=5)
+        axs[0].scatter(df.loc[i, "X"],
+                       df.loc[i, "Y"],
+                       s=1,
+                       facecolors="none",
+                       edgecolors="black")
+        axs[0].text(df.loc[i, "X"] + 0.02,
+                    df.loc[i, "Y"] + 0.02,
+                    str(i),
+                    fontsize=5)
 
     cols = get_covid_stat_plt_color(stats_df)
     day_string = str(day)
