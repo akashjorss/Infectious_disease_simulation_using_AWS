@@ -81,8 +81,13 @@ then packaged into an artifact. This package is then moved to a production
 environment where it awaits approval to be opened for deployment.  
 In the deployment phase, the package is opened and reviewed with a system
 of automated checks. If the checks fail the package is rejected.
+When the checks pass the package is automatically deployed to production.<br>
+
+
+In the deployment phase, the package is opened and reviewed with a system
+of automated checks. If the checks fail the package is rejected.
 When the checks pass the package is automatically deployed to production.
-![CD Diagram](cd-diagram.png)
+![CD Diagram](cd_diagram.png)
 <br>
 Following are the practices of CD:
 <ul>
@@ -98,9 +103,24 @@ There are many tools available to help in this process. They are classified as f
 <ul>
 <li>Automated testing.</li>
 <li>Rolling deployments.</li>
-<li>Rolling deployments.</li>
+<li>Monitoring and alerts.</li>
 </ul>
 
+For more information, check out this article: https://www.atlassian.com/continuous-delivery/continuous-deployment
+
+## AWS Services For CI/CD
+
+***
+
+## Problem Statement
+We want to create a lambda function that will be tested and deployed if test pass.
+1. A new commit reaches Github
+2. Build pipeline will be triggered
+3. Tests run
+4. Artifacts will be created
+5. Update Lambda use new code artifact
+
+***
 
 ## AWS Services For CI/CD
 
