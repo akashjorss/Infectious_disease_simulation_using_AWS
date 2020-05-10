@@ -2,13 +2,14 @@
 
 ## Table Of Contents
 
-1. [What is CI and CD](#what-is-ci-and-cd)
-2. [AWS services For CI/CD](#aws-services-for-cicd)
+1. [What is CI](#what-is-ci)
+2. [What is CD](#what-is-cd)
+3. [AWS services For CI/CD](#aws-services-for-cicd)
     1. Code Build
     2. Code Deploy
     3. Code Pipeline
-3. [Problem Statement](#problem-statement)
-4. [Create a Lambda](#create-a-lambda)
+4. [Problem Statement](#problem-statement)
+5. [Create a Lambda](#create-a-lambda)
 
 ***
 
@@ -144,11 +145,11 @@ Readers in *nix environments can run the below command to generate this zip
 ```shell script
 zip hello_user.zip hello_user.py
 ```
-This zip becomes the source of our lambda function that we will create in further steps.
+This zip becomes the source of our lambda function that we will create in further steps.<br>
 4. Following steps in [Task 6.2: Serverless example](https://github.com/CCBDA-UPC/Assignments-2020/blob/master/Lab06.md#task-62-serverless-example)
 create a lambda, refer to images belows to identify differing configurations.
 ![Lambda config](lambda-function_config.png)
-![Lambda config](lambda-api_gateway_config.png)
+![Lambda config](lambda-api_gateway_config.png)<br>
 5. Once lambda has been created, navigate to the `Function code` block and select `Upload .zip file` from `Code Entry Type`
 dropdown, select zip created in step 3.
 ![Code as ZIP](lambda-zip_upload_handler.png)
