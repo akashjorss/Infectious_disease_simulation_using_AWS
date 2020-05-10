@@ -201,8 +201,8 @@ Before proceeding for next stage, please choose the 'Webhook-optional'. Additona
 ![Webhook Token](CodeBuild_Source_Webhook.png)
 
 5. We move on the 'Environment' stage. For this execution, we make use of 'Managed Image' and 'Amazon Linux 2 ' as the operating system. Further configurations, can be found as in the following image. We keeping computation power to the minimalistic for reducing costs.
-![Environment1](CodeBuild_EnvironmentDetails)
-![Environment2](CodeBuild_EnvironmentDetails_2)
+![Environment1](CodeBuild_EnvironmentDetails.jpg)
+![Environment2](CodeBuild_EnvironmentDetails_2.jpg)
 
 6. Proceeding with the 'Buildspec' level. We do not make any alterations, since we generate the file following the default syntax 'buildspec.yml'. The contents of the yml file:
 ```
