@@ -210,6 +210,6 @@ phases:
 
 Finally after this detailed configurations, we click 'Create  build project'.
 To test the build, click 'Start Build' with timeout '0' hour and '5' minutes.
-![Build Success 1](CodeBuild_Source_BuildSuccess.jpg)
+![Build Success 1](CodeBuild_Source_BuildSuccess.png)
 ![Build Success 2](CodeBuild_SuccessfulBuild.jpg)
 ***
