@@ -4,13 +4,10 @@
 
 1. [What is CI](#what-is-ci)
 2. [What is CD](#what-is-cd)
-3. [AWS services For CI/CD](#aws-services-for-cicd)
-    1. Code Build
-    2. Code Deploy
-    3. Code Pipeline
-4. [Problem Statement](#problem-statement)
-5. [Create a Lambda](#create-a-lambda)
-6. [Create a CodeBuild project](#create-a-code-build-environment-for-the-pipeline)
+3. [Problem Statement](#problem-statement)
+4. [Create a Lambda](#create-a-lambda)
+5. [Create a CodeBuild project](#create-a-code-build-environment-for-the-pipeline)
+6. [Task](#task)
 
 ***
 
@@ -109,9 +106,6 @@ There are many tools available to help in this process. They are classified as f
 </ul>
 
 For more information, check out this article: https://www.atlassian.com/continuous-delivery/continuous-deployment
-
-## AWS Services For CI/CD
-
 ***
 
 ## Problem Statement
@@ -164,9 +158,22 @@ Navigate to the URL and ensure you see the following JSON response.
 With our lambda created we can now move to the next stage of our tutorial.
 
 ## Create a Code Build environment for the pipeline
-For this purpose, we make use of 'AWS CodeBuild'. This build will be used during during the build stage for the Code Pipeline.
+[Code Build](https://aws.amazon.com/codebuild/) is a CI service from AWS. Other CI service you will find in the wild are [TravisCI](https://travis-ci.org/),
+[CircleCI](https://circleci.com/), these are cloud solutions whereas [Jenkins](https://www.jenkins.io/) and [GoCD](https://www.gocd.org/)
+are popular open source and self hosted CI solutions. Maybe of the solutions mentioned above also include functionality for CD.
 
-###Steps to follow:
+We use Code Build for both CI and CD, this comes with some caveats. Orchestrating complex deployment patterns is a nightmare with the developer
+having to deal wit the complexities involved. For example [Blue Green Deployment](https://www.martinfowler.com/bliki/BlueGreenDeployment.html),
+you might use these in your apps to reduce downtime, another deployment pattern is [Canary Development](https://martinfowler.com/bliki/CanaryRelease.html)
+which rolls out newer version to a subset of users and then if there are no issues rolls it out to all users.
+For advanced deployment patterns mentioned above, rollback to an older version is of importance to ensure reduce down time.
+
+We direct the readers attention to [Code Deploy](https://aws.amazon.com/codedeploy/) for working with these advanced patterns.
+For the purposes of this tutorial, our deployment strategy will be naive and involve updating the lambda's code and publishing
+said code changes.
+
+
+### Steps to follow:
 1. Inside the AWS Console search and navigate to the 'AWS CodeBuild.'
 ![Seach CodeBuild](CodeBuild_Search.png)
 
@@ -208,4 +215,57 @@ The reports and logs validate the successful build of project.
 ![Build Success 2](CodeBuild_SuccessfulBuild.jpg)
 ***
 
+
 ## buildspec.yml explained
+=======
+## Task
+To get a feel of a failing pipeline and to achieve our initial goal of a lambda to show `username` we advise the reader to follow the below steps.
+1. Modify `test_hello_user` function `test_hello_world.py` in the tutorial repository to
+```python
+def test_hello_user():
+    expected_output = {"message": "Hello CI CD Developer!"}
+    actual = hello_user_handler({"queryStringParameters": {"user": "CI CD Developer"}}, {})
+    assert json.loads(actual["body"]) == expected_output
+    assert actual["statusCode"] == 200
+```
+The modification in the test logic assumes username comes as part of a query param called `queryStringParameters`
+The associated invocation would look like `https://lt24l8cd5m.execute-api.us-east-1.amazonaws.com/default/hello_user?user=CI%20CD%20Developer`
+2. Commit and push to you fork of the tutorial repo, which is configured to work with code build pipeline.
+3. Note the failure as the `hello_user_handler` does not yet implement the desired functionality.
+4. This failure prevents lambda from being deployed with erroneous business logic.
+5. Update `hello_user_handler` in `hello_user.py` to reflect required logic, the correct implementation is left as a task for the reader,
+the unit test specification, gives all required information to complete this task and we believe this to be a primer in [TDD](https://www.freecodecamp.org/news/test-driven-development-what-it-is-and-what-it-is-not-41fa6bca02a2/)
+6. Commit changes and push and monitor Code Build logs
+7. After successful build, invoke API gateway request with the query param `?user=CI%20CD%20Developer` and validate the response
+```json
+{"message": "Hello CI CD Developer!"}
+```
+
+## buildspec.yml explained
+
+1.In the `install` step, we specify what runtime is needed for out build, since our lambda is a python function, we set runtime as `python: 3.7`
+```yaml   
+  install:
+    runtime-versions:
+      python: 3.7
+```
+2.In the `pre_build` step we install all dependencies that is needed for our application using `pip` and then run tests using `pytest` which is a popular test runner for python. More information can be found here
+```yaml
+  pre_build:
+    commands:
+      - pip install -r requirements.txt
+      - pytest
+```
+3.In `build` step, we create a zip, as we did in creating a [create a lambda step](#create-a-lambda)
+```yaml
+build:
+    commands:
+      - zip hello_user.zip hello_user.py
+```
+
+4.In the `post_build` stage we **publish** the new version of lambda
+```yaml
+post_build:
+    commands:
+      - aws lambda update-function-code --function-name=hello_user --zip-file=fileb://hello_user.zip
+      - aws lambda publish-version --function-name hello_user
