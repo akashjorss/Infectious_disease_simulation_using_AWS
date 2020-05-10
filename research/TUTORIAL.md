@@ -214,6 +214,29 @@ The reports and logs validate the successful build of project.
 ![Build Success 2](CodeBuild_SuccessfulBuild.jpg)
 ***
 
+## Task
+To get a feel of a failing pipeline and to achieve our initial goal of a lambda to show `username` we advise the reader to follow the below steps.
+1. Modify `test_hello_user` function `test_hello_world.py` in the tutorial repository to 
+```python
+def test_hello_user():
+    expected_output = {"message": "Hello CI CD Developer!"}
+    actual = hello_user_handler({"queryStringParameters": {"user": "CI CD Developer"}}, {})
+    assert json.loads(actual["body"]) == expected_output
+    assert actual["statusCode"] == 200
+```
+The modification in the test logic assumes username comes as part of a query param called `queryStringParameters`
+The associated invocation would look like `https://lt24l8cd5m.execute-api.us-east-1.amazonaws.com/default/hello_user?user=CI%20CD%20Developer`
+2. Commit and push to you fork of the tutorial repo, which is configured to work with code build pipeline.
+3. Note the failure as the `hello_user_handler` does not yet implement the desired functionality.
+4. This failure prevents lambda from being deployed with erroneous business logic.
+5. Update `hello_user_handler` in `hello_user.py` to reflect required logic, the correct implementation is left as a task for the reader,
+the unit test specification, gives all required information to complete this task and we believe this to be a primer in [TDD](https://www.freecodecamp.org/news/test-driven-development-what-it-is-and-what-it-is-not-41fa6bca02a2/)
+6. Commit changes and push and monitor Code Build logs
+7. After successful build, invoke API gateway request with the query param `?user=CI%20CD%20Developer` and validate the response
+```json
+{"message": "Hello CI CD Developer!"}
+```
+
 ## buildspec.yml explained
 
 1.In the `install` step, we specify what runtime is needed for out build, since our lambda is a python function, we set runtime as `python: 3.7`
