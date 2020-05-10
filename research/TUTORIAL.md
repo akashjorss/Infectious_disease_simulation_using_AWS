@@ -25,7 +25,9 @@ code, however small, is added to the codebase. This way, if a log of changes is 
 control systems like GitHub, an error could be traced back to the exact change when it happened. <br>
 
 Github flow is one of the common methodologies to do CI.
-![github_flow](github_flow.png)<br>
+<br><br>
+![github_flow](github_flow.png)
+<br><br>
 Usually a developer, when adding a new feature to a project follows the following steps under PR approach:
 <ol>
 <li>Download the updated Master Branch in Github. This branch is the main codebase for a project
@@ -86,8 +88,9 @@ When the checks pass the package is automatically deployed to production.<br>
 In the deployment phase, the package is opened and reviewed with a system
 of automated checks. If the checks fail the package is rejected.
 When the checks pass the package is automatically deployed to production.
+<br><br>
 ![CD Diagram](cd_diagram.png)
-<br>
+<br><br>
 Following are the practices of CD:
 <ul>
 <li>Test-driven development: as opposed to delivering the code first producing
@@ -106,6 +109,12 @@ There are many tools available to help in this process. They are classified as f
 </ul>
 
 For more information, check out this article: https://www.atlassian.com/continuous-delivery/continuous-deployment
+AWS provides various tools for CI/CD and are as follows:
+1. [CodeBuild](https://aws.amazon.com/codebuild/) 
+2. [CodeDeploy](https://aws.amazon.com/codedeploy/)
+3. [CloudWatch](https://aws.amazon.com/cloudwatch/)
+
+Additionally, there are testing frameworks for most programming languages. In our project, we employed [pytest](https://docs.pytest.org/en/latest/) for automatic unit testing. 
 ***
 
 ## Problem Statement
@@ -143,14 +152,21 @@ zip hello_user.zip hello_user.py
 This zip becomes the source of our lambda function that we will create in further steps.<br>
 4. Following steps in [Task 6.2: Serverless example](https://github.com/CCBDA-UPC/Assignments-2020/blob/master/Lab06.md#task-62-serverless-example)
 create a lambda, refer to images belows to identify differing configurations.
+<br><br>
 ![Lambda config](lambda-function_config.png)
-![Lambda config](lambda-api_gateway_config.png)<br>
+<br><br>
+![Lambda config](lambda-api_gateway_config.png)
+<br><br>
 5. Once lambda has been created, navigate to the `Function code` block and select `Upload .zip file` from `Code Entry Type`
 dropdown, select zip created in step 3.
+<br><br>
 ![Code as ZIP](lambda-zip_upload_handler.png)
+<br><br>
 Be sure to change the handler info as given in the image above.
 6. Click on the tab API Gateway, as shown in the screen capture below, to obtain the API Endpoint URL.
+<br><br>
 ![Lambda Endpoint URL](lambda-designer.png)
+<br><br>
 Navigate to the URL and ensure you see the following JSON response.
 ```json
 {"message": "hello user"}
@@ -174,58 +190,66 @@ said code changes.
 
 
 ### Steps to follow:
-1. Inside the AWS Console search and navigate to the 'AWS CodeBuild.'
+1. Inside the AWS Console search and navigate to 'AWS CodeBuild.'
 ![Seach CodeBuild](CodeBuild_Search.png)
 
 2. Now let's start by creating a new build project by clicking 'Create build project'.
 
-3. To create a build successfully, let us break down and carry it one sub-section at a time.
+3. To create a build project successfully, let us break down and carry it one sub-section at a time.
 Starting with the 'Project Configuration'.
+<br><br>
 ![Project config](CodeBuild_Project_Config.jpg)
+<br><br>
 
 4. Proceeding with the 'Source Details'. In this case, we need make use of the code stored in Github by pointing the AWS to the correct repository. Please choose source provider as 'Github Enterprise.'
+<br><br>
 ![Source Details](CodeBuild_SourceDetails_2.jpeg)
+<br><br>
  Additionally, for authentication purposes, we generated 'Personal OAuth token'. This token can be generated from 'developer' tab under the GitHub settings page.
+ <br><br>
 ![Github Developer Settings](CodeBuild_Github_DeveloperSettings.jpg)
+<br><br>
 ![Github Token](CodeBuild_Github_PersonalAccessToken.jpg)
+<br><br>
 ![Github Generate Token](CodeBuild_Github_PersonalAccessToken_GENERATE.jpg)
-This generated the token needs to pasted under the 'GitHub Enterprise personal access token.'
-The source version needs to be 'https://<username>@github.com/anantgupta04/CC-ResearchProject.git'
-You can also use OAuth based authentiation, we recommend personal access token based method as projects under organizations (as is the case with our course project)
-won't be available with OAuth access. 
+<br><br>
+This generated token needs to pasted under the 'GitHub Enterprise personal access token.'
+The source version needs to be 'https://<username>@github.com/anantgupta04/CC-ResearchProject.git' where username is your github username
 Before proceeding for next stage, please choose the 'Webhook-optional'. Additonal information can be found in the [documentation](https://developer.github.com/webhooks/).
+ <br><br>
 ![Webhook Token](CodeBuild_Source_Webhook.png)
+ <br><br>
 
-5. We move on the 'Environment' stage. For this execution, we make use of 'Managed Image' and 'Amazon Linux 2 ' as the operating system. Further configurations, can be found as in the following image. We keeping computation power to the minimalistic for reducing costs.
+5. We move to the 'Environment' stage. For this execution, we make use of 'Managed Image' and 'Amazon Linux 2 ' as the operating system. Further configurations, can be found in the following image. We are keeping the compute minimum for reducing costs.
+<br><br>
 ![Environment1](CodeBuild_EnvironmentDetails.jpg)
+<br><br>
 ![Environment2](CodeBuild_EnvironmentDetails_2.jpg)
+<br><br>
 
-6. Proceeding with the 'Buildspec' level. We do not make any alterations, build specifications is configured and version controlled
-in the repository, this is a best practice giving greater flexibility to developers to add phases or checks as necessary.
+6. Proceeding with the 'Buildspec' level. We do not make any alterations because build specifications is configured and version controlled in the repository, and this is the best practice, giving greater flexibility to developers to add phases or checks as necessary.
 AWS CodeBuild supports specifications in the form on an YAML file. Our specification file is present at [buildspec.yml](https://github.com/anantgupta04/CC-ResearchProject/blob/master/buildspec.yml)
 The build spec config has been explained in depth at [buildspec.yml explained](#buildspecyml-explained).
 
 7. For 'Artifacts' stage, we proceed without making any changes since we plan to create the entire program structure as a zip.
 
 8. 'Logs' stage, we continue with the default 'CloudWatch logs-optional.'
+<br><br>
 ![CloudWatch](CodeBuild_Artifacts_Logs.jpg)
+<br><br>
 
 Finally after this detailed configurations, we click 'Create build project'.
 To test the build, click 'Start Build' with timeout '0' hour and '5' minutes.
 The reports and logs validate the successful build of project.
+<br><br>
 ![Build Success 1](CodeBuild_Source_BuildSuccess.png)
+<br><br>
 ![Build Success 2](CodeBuild_SuccessfulBuild.jpg)
+<br><br>
 ***
 
 ## Task
 To get a feel of a failing pipeline and to achieve our initial goal of a lambda to show `username` we advise the reader to follow the below steps.
-Associate `AWSLambdaFullAccess` policy to service account created for your code build pipeline. 
-If this is not done you are likely to see the following exception 
-
-```text
-An error occurred (AccessDeniedException) when calling the UpdateFunctionCode operation: User: arn:aws:sts::<<AWS_account_id>>:assumed-role/<<code_build_service_account_name>>/AWSCodeBuild-36062024-787d-4273-8a58-b10fce293594 is not authorized to perform: lambda:UpdateFunctionCode on resource: arn:aws:lambda:us-east-1:<<AWS_account_id>>:function:hello_user
-```
-
 1.Modify `test_hello_user` function `test_hello_world.py` in the tutorial repository to
 ```python
 def test_hello_user():
