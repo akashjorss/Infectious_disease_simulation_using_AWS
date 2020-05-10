@@ -12,6 +12,8 @@ def hello_world_lambda_handler(event, context):
 
     return {
         "statusCode": 200,
-        "headers": {"my_header": "Hello World"},
+        "headers": {
+            "my_header": "Hello World"
+        },
         "body": json.dumps(body),
     }

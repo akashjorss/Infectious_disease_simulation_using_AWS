@@ -15,8 +15,7 @@ def test_app(capsys, example_fixture):
 
 def test_lambda():
     response = hello_world_lambda_handler(
-        {"myParam": "Hello World from AWS lambda"}, None
-    )
+        {"myParam": "Hello World from AWS lambda"}, None)
     response_body = response["body"]
     response_body = json.loads(response_body)["response"]
     assert response_body == "Hello World from AWS lambda"
