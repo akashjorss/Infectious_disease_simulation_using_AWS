@@ -16,15 +16,12 @@
 Continuous Integration is popular software development methodology which minimises the overhead for integrating
 various features of a software project. <br>
 Software integration, especially for big projects, is a mammoth task. Usually, developers work on separate
-<<<<<<< HEAD
 features and then finally they integrate everything together to make single, functional software
 package. Or at least that is how it used to be, before we could not scale this final step efficiently. 
 The software community quickly realised that solving integration errors should be done right after a new piece of 
-=======
 features in a software and then finally they integrate everything together to make single, functional software
 package. Or at least that is how it used to be, before we could not scale this final step efficiently.
 The software community quickly realised that solving integration errors should be done right after a new piece of
->>>>>>> 93e6b0807845f620b8e750c7665515ea4c79eb29
 code, however small, is added to the codebase. This way, if a log of changes is maintained, as in the version
 control systems like GitHub, an error could be traced back to the exact change when it happened. <br>
 
