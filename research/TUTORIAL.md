@@ -145,7 +145,7 @@ Readers in *nix environments can run the below command to generate this zip
 ```shell script
 zip hello_user.zip hello_user.py
 ```
-This zip becomes the source of our lambda function that we will create in further steps.
+This zip becomes the source of our lambda function that we will create in further steps.<br>
 4. Following steps in [Task 6.2: Serverless example](https://github.com/CCBDA-UPC/Assignments-2020/blob/master/Lab06.md#task-62-serverless-example)
 create a lambda, refer to images belows to identify differing configurations.
 ![Lambda config](lambda-function_config.png)
