@@ -103,7 +103,7 @@ There are many tools available to help in this process. They are classified as f
 <ul>
 <li>Automated testing.</li>
 <li>Rolling deployments.</li>
-<li>Rolling deployments.</li>
+<li>Monitoring and alerts.</li>
 </ul>
 
 
