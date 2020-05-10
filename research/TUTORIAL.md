@@ -164,9 +164,9 @@ Navigate to the URL and ensure you see the following JSON response.
 With our lambda created we can now move to the next stage of our tutorial.
 
 ## Create a Code Build environment for the pipeline
-For this purpose, we make use of 'AWS CodeBuild'. This build will be used during during the build stage for the Code Pipeline.
+We use Code Build for both CI and CD, this comes with some caveats. 
 
-###Steps to follow:
+### Steps to follow:
 1. Inside the AWS Console search and navigate to the 'AWS CodeBuild.'
 ![Seach CodeBuild](CodeBuild_Search.png)
 
@@ -209,3 +209,31 @@ The reports and logs validate the successful build of project.
 ***
 
 ## buildspec.yml explained
+
+1.In the `install` step, we specify what runtime is needed for out build, since our lambda is a python function, we set runtime as `python: 3.7`
+```yaml   
+  install:
+    runtime-versions:
+      python: 3.7
+```
+2.In the `pre_build` step we install all dependencies that is needed for our application using `pip` and then run tests using `pytest` which is a popular test runner for python. More information can be found here
+```yaml
+  pre_build:
+    commands:
+      - pip install -r requirements.txt
+      - pytest
+```
+3.In `build` step, we create a zip, as we did in creating a [create a lambda step](#create-a-lambda)
+```yaml
+build:
+    commands:
+      - zip hello_user.zip hello_user.py
+```
+
+4.In the `post_build` stage we **publish** the new version of lambda
+```yaml
+post_build:
+    commands:
+      - aws lambda update-function-code --function-name=hello_user --zip-file=fileb://hello_user.zip
+      - aws lambda publish-version --function-name hello_user
+``` 
