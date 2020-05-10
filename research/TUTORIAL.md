@@ -130,29 +130,25 @@ Our end goal is to deploy a lambda that responds with the `hello ${username}` wh
 
 ### Steps:
 1. Contrary to [Task 6.2: Serverless example](https://github.com/CCBDA-UPC/Assignments-2020/blob/master/Lab06.md#task-62-serverless-example)
-for lambda function code will be populated by a zip file in S3. This is one of the tenants of the CI/CD, make deployment
+lambda function code will be populated by a zip file. This is one of the tenants of the CI/CD, make deployment
 separate from the code artifact.
-2. First we will create a bucket which will host our lambda code, remember buckets names have to be globally unique.
-![S3 bucket creation](lambda-bucket_creation.png)
-3. Clone our [tutorial repository](https://github.com/anantgupta04/CC-ResearchProject)
-4. Create a zip file `hello_user.zip` containing `hello_user.py`
+2. Clone our [tutorial repository](https://github.com/anantgupta04/CC-ResearchProject)
+3. Create a zip file `hello_user.zip` containing `hello_user.py`
 Readers in *nix environments can run the below command to generate this zip
 ```shell script
 zip hello_user.zip hello_user.py
 ```
-5. Upload `hello_user.zip` into S3 bucket created in step 2.
-![Zip uploaded](lambda-zip_uploaded.png)
 This zip becomes the source of our lambda function that we will create in further steps.
-6. Following steps in [Task 6.2: Serverless example](https://github.com/CCBDA-UPC/Assignments-2020/blob/master/Lab06.md#task-62-serverless-example)
+4. Following steps in [Task 6.2: Serverless example](https://github.com/CCBDA-UPC/Assignments-2020/blob/master/Lab06.md#task-62-serverless-example)
 create a lambda, refer to images belows to identify differing configurations.
 ![Lambda config](lambda-function_config.png)
 ![Lambda config](lambda-api_gateway_config.png)
-7. Once lambda has been created, navigate to the `Function code` block and select `Code entry type` from `Code Entry Type`
-dropdown and insert object URL to the zip file you had uploaded to S3 in step 5.
-The object URL can be found in the overview tab of the zip file.
+5. Once lambda has been created, navigate to the `Function code` block and select `Upload .zip file` from `Code Entry Type`
+dropdown, select zip created in step 3.
+![Code as ZIP](lambda-zip_uploaded.png)
 Be sure to change the handler info as given in the image below.
 ![Lambda use S3](lambda-s3_code_load.png)
-8. Click on the tab API Gateway, as shown in the screen capture below, to obtain the API Endpoint URL.
+6. Click on the tab API Gateway, as shown in the screen capture below, to obtain the API Endpoint URL.
 ![Lambda Endpoint URL](lambda-designer.png)
 Navigate to the URL and ensure you see the following JSON response.
 ```json
