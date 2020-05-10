@@ -57,8 +57,46 @@ For more information on the above, check out the paper by Martin Fowler:
 Fowler, Martin, and Matthew Foemmel. "Continuous integration." (2006).
 
 ## What is CD? 
-
-
+CD can either stand for Continuous Delivery or Continuous Deployment. <br>
+Continuous delivery is an approach where teams release quality products 
+frequently and predictably from source code repository to production in an automated fashion.<br>
+Continuous Deployment (CD) is a software release process that uses automated testing to validate 
+if changes to a codebase are correct and stable for immediate 
+autonomous deployment to a production environment.<br>
+Continuous delivery is needed to ensure Continuous Deployment. So, here we focus
+on Continuous Deployment and henceforth refer to it as CD. <br>
+Software market is a fast moving one. So, it gives competitive advantage to businesses
+to respond to changing market demands as soon as possible. For example, 
+if a user submits a bug report, the developers of that software could respond
+quickly by fixing the bug and employing CI and then CD to quickly deploy the fixed
+software package. Also, if the team has a new idea, it can quickly 
+develop and deploy that feature. <br>
+Continuous deployment involves building a pipeline which involves automated 
+tests, build and deployment. 
+In the delivery phase, developers will review and merge code changes that are 
+then packaged into an artifact. This package is then moved to a production 
+environment where it awaits approval to be opened for deployment.  
+In the deployment phase, the package is opened and reviewed with a system 
+of automated checks. If the checks fail the package is rejected. 
+When the checks pass the package is automatically deployed to production.
+![CD Diagram](cd-diagram.png)
+<br>
+Following are the practices of CD:
+<ul>
+<li>Test-driven development: as opposed to delivering the code first producing 
+the test coverage after.</li>
+<li>Single method of deployment: To avoid breaking the CD flow. </li>
+<li>Containerization: To ensure that the software behaves in the same way 
+on all platforms.</li>
+</ul>
+The disadvantages of using CD is the initial engineering cost of the deployment
+pipeline and its maintainence to ensure the smooth functionality at all times. 
+There are many tools available to help in this process. They are classified as follows:
+<ul>
+<li>Automated testing.</li>
+<li>Rolling deployments.</li>
+<li>Rolling deployments.</li>
+</ul>
 
 
 ## AWS Services For CI/CD
