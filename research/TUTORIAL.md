@@ -79,18 +79,15 @@ tests, build and deployment.
 In the delivery phase, developers will review and merge code changes that are
 then packaged into an artifact. This package is then moved to a production
 environment where it awaits approval to be opened for deployment.  
-<<<<<<< HEAD
 In the deployment phase, the package is opened and reviewed with a system 
 of automated checks. If the checks fail the package is rejected. 
 When the checks pass the package is automatically deployed to production.<br>
-<img src="cd-diagram.png" width="250" height="250" align = "center" style="float:center">
 
-=======
+
 In the deployment phase, the package is opened and reviewed with a system
 of automated checks. If the checks fail the package is rejected.
 When the checks pass the package is automatically deployed to production.
-![CD Diagram](cd-diagram.png)
->>>>>>> ed2ceacbe1a8bc2a61e27d70cbf494ba4da3bb83
+![CD Diagram](cd_diagram.png)
 <br>
 Following are the practices of CD:
 <ul>
@@ -109,6 +106,20 @@ There are many tools available to help in this process. They are classified as f
 <li>Rolling deployments.</li>
 </ul>
 
+
+## AWS Services For CI/CD
+
+***
+
+## Problem Statement
+We want to create a lambda function that will be tested and deployed if test pass.
+1. A new commit reaches Github
+2. Build pipeline will be triggered
+3. Tests run
+4. Artifacts will be created
+5. Update Lambda use new code artifact
+
+***
 
 ## AWS Services For CI/CD
 
