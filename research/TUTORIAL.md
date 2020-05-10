@@ -164,7 +164,20 @@ Navigate to the URL and ensure you see the following JSON response.
 With our lambda created we can now move to the next stage of our tutorial.
 
 ## Create a Code Build environment for the pipeline
-We use Code Build for both CI and CD, this comes with some caveats. 
+[Code Build](https://aws.amazon.com/codebuild/) is a CI service from AWS. Other CI service you will find in the wild are [TravisCI](https://travis-ci.org/), 
+[CircleCI](https://circleci.com/), these are cloud solutions whereas [Jenkins](https://www.jenkins.io/) and [GoCD](https://www.gocd.org/) 
+are popular open source and self hosted CI solutions. Maybe of the solutions mentioned above also include functionality for CD. 
+
+We use Code Build for both CI and CD, this comes with some caveats. Orchestrating complex deployment patterns is a nightmare with the developer
+having to deal wit the complexities involved. For example [Blue Green Deployment](https://www.martinfowler.com/bliki/BlueGreenDeployment.html), 
+you might use these in your apps to reduce downtime, another deployment pattern is [Canary Development](https://martinfowler.com/bliki/CanaryRelease.html)
+which rolls out newer version to a subset of users and then if there are no issues rolls it out to all users.
+For advanced deployment patterns mentioned above, rollback to an older version is of importance to ensure reduce down time.
+
+We direct the readers attention to [Code Deploy](https://aws.amazon.com/codedeploy/) for working with these advanced patterns.
+For the purposes of this tutorial, our deployment strategy will be naive and involve updating the lambda's code and publishing
+said code changes. 
+
 
 ### Steps to follow:
 1. Inside the AWS Console search and navigate to the 'AWS CodeBuild.'
