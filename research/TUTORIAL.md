@@ -191,27 +191,21 @@ Before proceeding for next stage, please choose the 'Webhook-optional'. Additona
 ![Environment1](CodeBuild_EnvironmentDetails.jpg)
 ![Environment2](CodeBuild_EnvironmentDetails_2.jpg)
 
-6. Proceeding with the 'Buildspec' level. We do not make any alterations, since we generate the file following the default syntax 'buildspec.yml'. The contents of the yml file:
-```
-version: 0.2
-phases:
-  install:
-    runtime-versions:
-      python: 3.7
-  pre_build:
-    commands:
-      - pip install -r requirements.txt
-      - pytest
-```
+6. Proceeding with the 'Buildspec' level. We do not make any alterations, build specifications is configured and version controlled
+in the repository, this is a best practice giving greater flexibility to developers to add phases or checks as necessary.
+AWS CodeBuild supports specifications in the form on an YAML file. Our specification file is present at [buildspec.yml](https://github.com/anantgupta04/CC-ResearchProject/blob/master/buildspec.yml)
+The build spec config has been explained in depth at [buildspec.yml explained](#buildspecyml-explained).
 
 7. For 'Artifacts' stage, we proceed without making any changes since we plan to create the entire program structure as a zip.
 
 8. 'Logs' stage, we continue with the default 'CloudWatch logs-optional.'
 ![CloudWatch](CodeBuild_Artifacts_Logs.jpg)
 
-Finally after this detailed configurations, we click 'Create  build project'.
+Finally after this detailed configurations, we click 'Create build project'.
 To test the build, click 'Start Build' with timeout '0' hour and '5' minutes.
 The reports and logs validate the successful build of project.
 ![Build Success 1](CodeBuild_Source_BuildSuccess.png)
 ![Build Success 2](CodeBuild_SuccessfulBuild.jpg)
 ***
+
+## buildspec.yml explained
