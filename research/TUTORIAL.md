@@ -2,13 +2,14 @@
 
 ## Table Of Contents
 
-1. [What is CI and CD](#what-is-ci-and-cd)
-2. [AWS services For CI/CD](#aws-services-for-cicd)
+1. [What is CI](#what-is-ci)
+2. [What is CD](#what-is-cd)
+3. [AWS services For CI/CD](#aws-services-for-cicd)
     1. Code Build
     2. Code Deploy
     3. Code Pipeline
-3. [Problem Statement](#problem-statement)
-4. [Create a Lambda](#create-a-lambda)
+4. [Problem Statement](#problem-statement)
+5. [Create a Lambda](#create-a-lambda)
 
 ***
 
