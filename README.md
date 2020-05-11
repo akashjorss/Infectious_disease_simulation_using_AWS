@@ -1,3 +1,4 @@
+To view the tutorial of our research project (CI/CD for AWS Lambda) go [here](./research/tutorial/README.md).
 ### Python project setup
 
 To run the project
