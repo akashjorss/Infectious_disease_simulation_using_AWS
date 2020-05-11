@@ -11,8 +11,8 @@
 
 ***
 
-## What is CI
-Continuous Integration is popular software development methodology which minimises the overhead for integrating
+## What is CI?
+Continuous Integration (CI) is popular software development methodology which minimises the overhead for integrating
 various features of a software project. <br>
 Software integration, especially for big projects, is a mammoth task. Usually, developers work on separate
 features and then finally they integrate everything together to make single, functional software
