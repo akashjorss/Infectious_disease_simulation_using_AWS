@@ -381,3 +381,9 @@ override.tf.json
 
 
 # End of https://www.gitignore.io/api/linux,macos,python,pycharm,windows,intellij+all
+
+# Custom
+
+terraform/lambda_package.zip
+
+# End Custom
