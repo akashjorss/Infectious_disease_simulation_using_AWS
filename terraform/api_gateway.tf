@@ -35,7 +35,7 @@ resource "aws_api_gateway_integration" "lambda_root" {
 
   integration_http_method = "POST"
   type                    = "AWS_PROXY"
-  uri                     = aws_lambda_function.lambda_package.invoke_arn
+  uri                     = aws_lambda_function.launch_simulation.invoke_arn
 }
 
 resource "aws_api_gateway_integration" "lambda" {
@@ -45,7 +45,7 @@ resource "aws_api_gateway_integration" "lambda" {
 
   integration_http_method = "POST"
   type                    = "AWS_PROXY"
-  uri                     = aws_lambda_function.lambda_package.invoke_arn
+  uri                     = aws_lambda_function.launch_simulation.invoke_arn
 }
 
 resource "aws_api_gateway_deployment" "gateway_deployment" {
