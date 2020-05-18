@@ -7,9 +7,9 @@ import SimulationRunner from './SimulationRunner'
 
 function App() {
     Auth.configure({
-        userPoolId: "us-east-2_g8pVQyn5v",
-        userPoolWebClientId: "4fstkb0vq4uitagigv85jl02ms",
-        region: "us-east-2"
+        userPoolId: "us-east-1_cNxGqM6Qf",
+        userPoolWebClientId: "2mjs8c33p7qvk1mrv8t8ijdbjm",
+        region: "us-east-1"
     })
     return (
         <div className="App">
