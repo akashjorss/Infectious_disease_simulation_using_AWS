@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <title>simulation</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        
+        <style>
+            @import url('https://fonts.googleapis.com/css2?family=Jost:ital,wght@0,500;1,300&display=swap');
+
+            body{
+                display: flex;
+                flex-direction: column;
+                width: 100%;
+                height: 100vh;
+                background-repeat: no-repeat;
+                background-size: cover;
+                align-items: center;
+                margin: 0;
+                font-family:"Jost";
+                color:white;
+                background: url('https://techcrunch.com/wp-content/uploads/2020/03/GettyImages-1209679043.jpg?w=1390&crop=1');
+            }
+
+            header{
+                padding: 1em;
+            }
+
+            .notbold{
+                font-weight: normal;
+            }
+
+            
+            p {display: table-row;}
+            label {display: table-cell;}
+            
+
+            .form-container{
+                display: table;
+                text-align: center;
+                background-color: rgba(27, 123, 179, 0.637);
+                padding: 2em;
+                border-radius: 0.5em;
+                width: 35%;
+                /* margin-left: auto; */
+            }
+    
+
+            
+            input[type=text]{
+                "display": "table-cell",
+                "font-family": "Jost",
+                "border": "1px solid wheat",
+                "text-align": "left",
+                "width":"20em",
+                "padding": "1em",
+                "border-radius": ".5em",
+                "text-shadow": "grey",
+                "margin": "1em"
+            }
+
+            input[type=button]{
+                margin-top: 2em;
+                font-family: "Jost";
+                background-color: rgb(50, 124, 194);
+                border: 0.5px;
+                color:white;
+                width: 10em;
+                border-radius: .5em;
+                padding: .5em 1em .5em 1em ;
+                cursor: pointer;
+                text-align: center;
+            }
+
+
+            input[type=button]:hover{
+                background-color: rgb(33, 102, 167);
+            }
+        </style>
+        
+    </head>
+    <body>
+        
+        <header><h1><span class="notbold">COVID19 simulation</span><h1></header>
+        <div class="form-container">
+            <form action="">
+                <p>
+                <label for="points">Population</label>
+                <input type="text" placeholder="Enter number of data points" name="points" id="points">
+                </p>
+                <p>
+                <label for="distance">Infectious threshold</label>
+                <input type="text" placeholder="Enter minimum infecting distance" name="distance" id="distance">
+                </p>
+                <input type="button"  value="simulate">
+            </form>
+          </div>
+    </body>
+</html>
