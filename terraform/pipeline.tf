@@ -17,49 +17,56 @@ resource "aws_iam_role" "code_build_iam" {
 EOF
 }
 
-resource "aws_iam_role_policy" "code_build_iam_policy" {
-  role = aws_iam_role.code_build_iam.name
-
-  policy = <<POLICY
-{
-  "Version": "2012-10-17",
-  "Statement": [
-    {
-      "Effect": "Allow",
-      "Resource": [
-        "*"
-      ],
-      "Action": [
-        "logs:CreateLogGroup",
-        "logs:CreateLogStream",
-        "logs:PutLogEvents"
-      ]
-    },
-    {
-      "Effect": "Allow",
-      "Action": [
-        "ec2:CreateNetworkInterface",
-        "ec2:DescribeDhcpOptions",
-        "ec2:DescribeNetworkInterfaces",
-        "ec2:DeleteNetworkInterface",
-        "ec2:DescribeSubnets",
-        "ec2:DescribeSecurityGroups",
-        "ec2:DescribeVpcs"
-      ],
-      "Resource": "*"
-    },
-    {
-      "Effect": "Allow",
-      "Action": [
-        "ec2:CreateNetworkInterfacePermission"
-      ],
-      "Resource": [
-"arn:aws:ec2:${data.aws_region.region.name}:${data.aws_caller_identity.current.account_id}:network-interface/*"
-      ]
-    }
-  ]
+data "aws_iam_policy_document" "code_build_policy" {
+  version = "2012-10-17"
+  statement {
+    sid    = "LogPermission"
+    effect = "Allow"
+    actions = [
+      "logs:CreateLogGroup",
+      "logs:CreateLogStream",
+    "logs:PutLogEvents"]
+    resources = [
+    "*"]
+  }
+  statement {
+    sid    = "ComputePermission"
+    effect = "Allow"
+    actions = [
+      "ec2:CreateNetworkInterface",
+      "ec2:DescribeDhcpOptions",
+      "ec2:DescribeNetworkInterfaces",
+      "ec2:DeleteNetworkInterface",
+      "ec2:DescribeSubnets",
+      "ec2:DescribeSecurityGroups",
+    "ec2:DescribeVpcs"]
+    resources = [
+    "*"]
+  }
+  statement {
+    sid    = "NetworkPermission"
+    effect = "Allow"
+    actions = [
+    "ec2:CreateNetworkInterfacePermission"]
+    resources = [
+      "arn:aws:ec2:${data.aws_region.region.name}:${data.aws_caller_identity.current.account_id}:network-interface/*"
+    ]
+  }
+  statement {
+    sid    = "LambdaDeploymentPermission"
+    effect = "Allow"
+    actions = [
+      "lambda:UpdateFunctionCode",
+    "lambda:PublishFunctionCode"]
+    resources = [
+      "arn:aws:ec2:${data.aws_region.region.name}:${data.aws_caller_identity.current.account_id}:function/*"
+    ]
+  }
 }
-POLICY
+
+resource "aws_iam_role_policy" "code_build_iam_policy" {
+  role   = aws_iam_role.code_build_iam.name
+  policy = data.aws_iam_policy_document.code_build_policy.json
 }
 
 resource "aws_codebuild_source_credential" "github_access_token" {
@@ -93,6 +100,12 @@ resource "aws_codebuild_project" "contact_tracking" {
       group_name  = "project-contact-tracing"
       stream_name = "build-pipeline"
     }
+  }
+
+  cache {
+    type = "LOCAL"
+    modes = [
+    "LOCAL_CUSTOM_CACHE"]
   }
 
   source {
