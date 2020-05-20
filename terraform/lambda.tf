@@ -13,7 +13,9 @@ resource "aws_lambda_function" "launch_simulation" {
   role    = aws_iam_role.lambda_exec.arn
   //  Code deployed from CI / CD
   lifecycle {
-    ignore_changes = [filename, source_code_hash]
+    ignore_changes = [
+      filename,
+    source_code_hash]
   }
 }
 
@@ -38,33 +40,31 @@ resource "aws_iam_role" "lambda_exec" {
 EOF
 }
 
-resource "aws_iam_policy" "iam_policy_for_lambda" {
-  name = "lambda-invoke-policy"
-  path = "/"
-
-  policy = <<EOF
-{
-    "Version": "2012-10-17",
-    "Statement": [
-      {
-        "Sid": "LambdaPolicy",
-        "Effect": "Allow",
-        "Action": [
-          "cloudwatch:PutMetricData",
-          "ec2:DescribeNetworkInterfaces",
-          "ec2:CreateNetworkInterface",
-          "ec2:DeleteNetworkInterface",
-          "logs:CreateLogStream",
-          "logs:CreateLogGroup",
-          "logs:PutLogEvents",
-          "xray:PutTelemetryRecords",
-          "xray:PutTraceSegments"
-        ],
-        "Resource": "*"
-      }
-    ]
+data "aws_iam_policy_document" "iam_policy_for_lambda" {
+  statement {
+    sid    = "LambdaPolicy"
+    effect = "Allow"
+    actions = [
+      "cloudwatch:PutMetricData",
+      "ec2:DescribeNetworkInterfaces",
+      "ec2:CreateNetworkInterface",
+      "ec2:DeleteNetworkInterface",
+      "logs:CreateLogStream",
+      "logs:CreateLogGroup",
+      "logs:PutLogEvents",
+      "xray:PutTelemetryRecords",
+      "xray:PutTraceSegments",
+      "elasticmapreduce:RunJobFlow",
+    "iam:PassRole"]
+    resources = [
+    "*"]
   }
-EOF
+}
+
+resource "aws_iam_policy" "iam_policy_for_lambda" {
+  name   = "lambda-invoke-policy"
+  path   = "/"
+  policy = data.aws_iam_policy_document.iam_policy_for_lambda.json
 }
 
 # Attach the policy to the role
