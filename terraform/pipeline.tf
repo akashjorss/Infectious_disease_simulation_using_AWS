@@ -16,7 +16,9 @@ resource "aws_iam_role" "code_build_iam" {
 }
 EOF
 }
-
+locals {
+  code_build_project_name = "contact_tracking"
+}
 data "aws_iam_policy_document" "code_build_policy" {
   version = "2012-10-17"
   statement {
@@ -41,7 +43,8 @@ data "aws_iam_policy_document" "code_build_policy" {
       "ec2:DescribeSecurityGroups",
     "ec2:DescribeVpcs"]
     resources = [
-    "*"]
+      "arn:aws:logs:${data.aws_region.region.name}:${data.aws_caller_identity.current.account_id}:log-group:${local.code_build_project_name}",
+    "arn:aws:logs:${data.aws_region.region.name}:${data.aws_caller_identity.current.account_id}:log-group:${local.code_build_project_name}:*"]
   }
   statement {
     sid    = "NetworkPermission"
@@ -57,10 +60,25 @@ data "aws_iam_policy_document" "code_build_policy" {
     effect = "Allow"
     actions = [
       "lambda:UpdateFunctionCode",
-    "lambda:PublishFunctionCode"]
+    "lambda:PublishVersion"]
     resources = [
-      "arn:aws:ec2:${data.aws_region.region.name}:${data.aws_caller_identity.current.account_id}:function/*"
+      "arn:aws:lambda:${data.aws_region.region.name}:${data.aws_caller_identity.current.account_id}:function",
+      "arn:aws:lambda:${data.aws_region.region.name}:${data.aws_caller_identity.current.account_id}:function:*"
     ]
+  }
+
+  statement {
+    sid    = "S3Deployment"
+    effect = "Allow"
+    actions = [
+      "s3:PutObject",
+      "s3:GetObject",
+      "s3:GetObjectVersion",
+      "s3:GetBucketAcl",
+    "s3:GetBucketLocation"]
+    resources = [
+      "arn:aws:s3:::${aws_s3_bucket.fe_s3.bucket}/*",
+    "arn:aws:s3:::${aws_s3_bucket.simulation_spark.bucket}/*"]
   }
 }
 
@@ -76,7 +94,7 @@ resource "aws_codebuild_source_credential" "github_access_token" {
 }
 
 resource "aws_codebuild_project" "contact_tracking" {
-  name           = "contact_tracking"
+  name           = local.code_build_project_name
   description    = "contact_tracing_project"
   build_timeout  = "5"
   queued_timeout = "5"
