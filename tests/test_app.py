@@ -1,16 +1,6 @@
 import json
 
 from aws_lambda.launch_simulation import lambda_handler
-from .context import blueprint
-
-
-def test_app(capsys, example_fixture):
-    # pylint: disable=W0612,W0613
-    # test hello world
-    blueprint.Blueprint.run()
-    captured = capsys.readouterr()
-
-    assert "Hello World..." in captured.out
 
 
 def test_lambda():
