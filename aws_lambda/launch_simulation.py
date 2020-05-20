@@ -1,6 +1,7 @@
 import json
 import logging
 import uuid
+from typing import Dict
 
 import boto3
 
@@ -33,7 +34,8 @@ def lambda_handler(event, context):
     logging.info(f"Running Simulation for subject {user_id}")
     simulation_id = str(uuid.uuid4())
     logging.info(f"Generated Simulation ID for this run is {simulation_id}")
-    create_emr(simulation_id, user_id)
+    response = create_emr(simulation_id, user_id)
+    logging.info(f"Cluster ARN and JobID ${json.dumps(response)}")
     return {
         "statusCode": 200,
         "headers": {"Access-Control-Allow-Origin": "*"},
@@ -41,7 +43,7 @@ def lambda_handler(event, context):
     }
 
 
-def create_emr(simulation_id: str, user_id: str):
+def create_emr(simulation_id: str, user_id: str) -> Dict[str, str]:
     client = boto3.client("emr", region_name="us-east-1")
     disk_config = {
         "EbsBlockDeviceConfigs": [
@@ -68,8 +70,45 @@ def create_emr(simulation_id: str, user_id: str):
                     "Market": "ON_DEMAND",
                     "InstanceRole": "CORE",
                     "InstanceType": INSTANCE_TYPE,
-                    "InstanceCount": 2,
+                    "InstanceCount": 1,
                     "EbsConfiguration": disk_config,
+                },
+                {
+                    "Name": "Auto Scaling Group",
+                    "Market": "SPOT",
+                    "InstanceRole": "TASK",
+                    "InstanceType": INSTANCE_TYPE,
+                    "InstanceCount": 1,
+                    "EbsConfiguration": disk_config,
+                    "AutoScalingPolicy": {
+                        "Constraints": {"MinCapacity": 0, "MaxCapacity": 10},
+                        "Rules": [
+                            {
+                                "Name": "Scale Out",
+                                "Description": "Rules for scaling out EMR",
+                                "Action": {
+                                    "SimpleScalingPolicyConfiguration": {
+                                        "AdjustmentType": "CHANGE_IN_CAPACITY",
+                                        "ScalingAdjustment": 2,
+                                        "CoolDown": 60,
+                                    },
+                                },
+                                "Trigger": {
+                                    "CloudWatchAlarmDefinition": {
+                                        "ComparisonOperator": "LESS_THAN",
+                                        "EvaluationPeriods": 1,
+                                        "MetricName": "YARNMemoryAvailablePercentage",
+                                        "Namespace": "AWS/ElasticMapReduce",
+                                        "Period": 300,
+                                        "Statistic": "AVERAGE",
+                                        "Threshold": 25,
+                                        "Unit": "PERCENT",
+                                        "Dimensions": [{"Key": "JobFlowId", "Value": "${emr.clusterId}"},],
+                                    }
+                                },
+                            },
+                        ],
+                    },
                 },
             ],
             "KeepJobFlowAliveWhenNoSteps": False,
@@ -93,10 +132,8 @@ def create_emr(simulation_id: str, user_id: str):
                 },
             },
         ],
-        BootstrapActions=[
-            {"Name": "Setup cluster", "ScriptBootstrapAction": {"Path": BOOTSTRAP_SCRIPT, "Args": ["string",]},},
-        ],
-        Applications=[{"Name": "Spark",},],
+        BootstrapActions=[{"Name": "Setup cluster", "ScriptBootstrapAction": {"Path": BOOTSTRAP_SCRIPT, "Args": []}}],
+        Applications=[{"Name": "Spark"}],
         Configurations=[
             {
                 "Classification": "spark-env",
@@ -106,8 +143,10 @@ def create_emr(simulation_id: str, user_id: str):
         VisibleToAllUsers=True,
         JobFlowRole="EMR_EC2_DefaultRole",
         ServiceRole="EMR_DefaultRole",
-        Tags=[{"Key": "user", "Value": user_id},],
+        AutoScalingRole="EMR_AutoScaling_DefaultRole",
+        Tags=[{"Key": "user", "Value": user_id}],
     )
+    return response
 
 
-# create_emr('b777d642-beac-48c6-8618-080001952041', '88ac8d98-c594-4c8d-b6d5-95442910554b')
+# create_emr("b777d642-beac-48c6-8618-080001952041", "88ac8d98-c594-4c8d-b6d5-95442910554b")
