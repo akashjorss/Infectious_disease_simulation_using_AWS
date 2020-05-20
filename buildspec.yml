@@ -13,3 +13,7 @@ phases:
   post_build:
     commands:
       - ./scripts/deploy.sh
+cache:
+  paths:
+    - 'frontend/node_modules/**/*'
+    - '/tmp/venv/**/*'
