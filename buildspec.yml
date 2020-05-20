@@ -3,7 +3,7 @@ phases:
   install:
     runtime-versions:
       python: 3.7
-      nodejs: 12.14
+      nodejs: 12
   pre_build:
     commands:
       - ./scripts/prebuild.sh
