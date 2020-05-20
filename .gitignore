@@ -383,4 +383,6 @@ override.tf.json
 # End of https://www.gitignore.io/api/linux,macos,python,pycharm,windows,intellij+all
 
 # Custom
+codebuild_build.sh
+aws_lambda/lambda_artifact.zip
 # End Custom

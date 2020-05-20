@@ -1,6 +1,6 @@
 import json
 
-from aws_lambda.hello_world import hello_world_lambda_handler
+from aws_lambda.launch_simulation import lambda_handler
 from .context import blueprint
 
 
@@ -14,7 +14,7 @@ def test_app(capsys, example_fixture):
 
 
 def test_lambda():
-    response = hello_world_lambda_handler(
+    response = lambda_handler(
         {"myParam": "Hello World from AWS lambda"}, None)
     response_body = response["body"]
     response_body = json.loads(response_body)["response"]

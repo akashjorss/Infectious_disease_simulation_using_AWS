@@ -1,5 +1,6 @@
 import React, {Component} from 'react';
-import axios from 'axios'
+import simulation_backend from './ApiClient'
+
 
 const formStyle = {
     "display": "table",
@@ -28,9 +29,10 @@ const labelStyle = {
 
 export class SimulationRunner extends Component {
     state = {
-        population:'',
-        distance:'',
+        population: '',
+        distance: '',
     }
+
     render() {
         return (
             <div>
@@ -41,7 +43,7 @@ export class SimulationRunner extends Component {
                                id="points" onChange={this.handleChange}/>
                     </p>
                     <p>
-                        <label htmlFor="distance" id = "dl" style={labelStyle}>Infectious threshold</label>
+                        <label htmlFor="distance" id="dl" style={labelStyle}>Infectious threshold</label>
                         <input type="text" style={inputText} placeholder="Enter minimum infecting distance"
                                name="distance"
                                id="distance" onChange={this.handleChange}/>
@@ -55,34 +57,31 @@ export class SimulationRunner extends Component {
 
     handleChange = event => {
         var x = event.target;
-        if (x.id == "points"){
+        if (x.id === "points") {
             this.setState({population: x.value})
         }
-        if (x.id == "distance"){
+        if (x.id === "distance") {
             this.setState({distance: x.value})
-            
+
         }
     }
     handleSubmit = event => {
         event.preventDefault();
-
         const params = {
             population: this.state.population,
             distance: this.state.distance
         };
-        axios.post("https://dvgdt3t23b.execute-api.us-east-2.amazonaws.com/test", {params})
-        .then(res => {
-            // const sim_id = JSON.parse(res);
-            document.getElementById("pl").innerHTML = res;
-            // document.getElementById("pl").innerHTML = JSON.parse(JSON.stringify(res.data.simulation_id));
-            // console.log(res.data);
-        })
-        .catch(error => {
-            console.log(error);
-        })
+        simulation_backend.post("simulate", {params})
+            .then(res => {
+                document.getElementById("pl").innerHTML = res;
+                // document.getElementById("pl").innerHTML = JSON.parse(JSON.stringify(res.data.simulation_id));
+                // console.log(res.data);
+            })
+            .catch(error => {
+                console.log(error);
+            })
     }
 
-    
 
 }
 

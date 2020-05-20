@@ -4,7 +4,7 @@ import logging
 logging.info("Loading function")
 
 
-def hello_world_lambda_handler(event, context):
+def lambda_handler(event, context):
     logging.info("Received event: " + json.dumps(event, indent=2))
     logging.info("Hello World Lambda")
 
@@ -13,7 +13,7 @@ def hello_world_lambda_handler(event, context):
     return {
         "statusCode": 200,
         "headers": {
-            "my_header": "Hello World"
+            "Access-Control-Allow-Origin": "*"
         },
         "body": json.dumps(body),
     }

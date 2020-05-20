@@ -7,7 +7,7 @@ resource "aws_lambda_function" "launch_simulation" {
 
   filename = "${path.module}/${local.lambda_source_file}"
 
-  handler = "lambda_function.lambda_handler"
+  handler = "launch_simulation.lambda_handler"
   runtime = "python3.8"
   publish = true
   role    = aws_iam_role.lambda_exec.arn
@@ -36,6 +36,41 @@ resource "aws_iam_role" "lambda_exec" {
 ]
 }
 EOF
+}
+
+resource "aws_iam_policy" "iam_policy_for_lambda" {
+  name = "lambda-invoke-policy"
+  path = "/"
+
+  policy = <<EOF
+{
+    "Version": "2012-10-17",
+    "Statement": [
+      {
+        "Sid": "LambdaPolicy",
+        "Effect": "Allow",
+        "Action": [
+          "cloudwatch:PutMetricData",
+          "ec2:DescribeNetworkInterfaces",
+          "ec2:CreateNetworkInterface",
+          "ec2:DeleteNetworkInterface",
+          "logs:CreateLogStream",
+          "logs:CreateLogGroup",
+          "logs:PutLogEvents",
+          "xray:PutTelemetryRecords",
+          "xray:PutTraceSegments"
+        ],
+        "Resource": "*"
+      }
+    ]
+  }
+EOF
+}
+
+# Attach the policy to the role
+resource "aws_iam_role_policy_attachment" "aws_iam_role_policy_attachment" {
+  role       = aws_iam_role.lambda_exec.name
+  policy_arn = aws_iam_policy.iam_policy_for_lambda.arn
 }
 
 resource "aws_lambda_permission" "apigw" {

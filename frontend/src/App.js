@@ -1,5 +1,4 @@
 import React from 'react';
-import axios from 'axios'
 import './App.css';
 import {AmplifyAuthenticator, AmplifySignIn, AmplifySignOut} from '@aws-amplify/ui-react'
 import Auth from "@aws-amplify/auth";
