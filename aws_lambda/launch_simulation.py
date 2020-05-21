@@ -23,9 +23,7 @@ if len(logging.getLogger().handlers) > 0:
 else:
     logging.basicConfig(level=logging.INFO)
 
-ssm_client = boto3.client("ssm", region_name="us-east-1")
-emr_client = boto3.client("emr", region_name="us-east-1")
-app_config_path = os.environ["APP_CONFIG_PATH"]
+app_config_path = os.getenv("APP_CONFIG_PATH", "simulation_lambda")
 full_config_path = "/" + app_config_path
 # Initialize app at global scope for reuse across invocations
 app = None
@@ -45,6 +43,7 @@ class SimulationLauncher:
         config_dict = {}
         try:
             # Get all parameters for this app
+            ssm_client = boto3.client("ssm", region_name="us-east-1")
             param_details = ssm_client.get_parameters_by_path(
                 Path=ssm_parameter_path, Recursive=False, WithDecryption=True
             )
@@ -63,7 +62,7 @@ class SimulationLauncher:
             print("Encountered an error loading config from SSM.")
             traceback.print_exc()
         self.simulation_app = config_dict["simulation_app"]
-        self.simulation_app = config_dict["log_path"]
+        self.log_path = config_dict["log_path"]
         self.bootstrap_script_path = config_dict["bootstrap_script_path"]
         self.instance_type = config_dict["instance_type"]
 
@@ -90,6 +89,7 @@ def lambda_handler(event, context):
 
 def create_emr(simulation_id: str, user_id: str) -> Dict[str, str]:
     global app
+    emr_client = boto3.client("emr", region_name="us-east-1")
     disk_config = {
         "EbsBlockDeviceConfigs": [
             {"VolumeSpecification": {"VolumeType": "gp2", "SizeInGB": 10}, "VolumesPerInstance": 1},
@@ -148,7 +148,7 @@ def create_emr(simulation_id: str, user_id: str) -> Dict[str, str]:
                                         "Statistic": "AVERAGE",
                                         "Threshold": 25,
                                         "Unit": "PERCENT",
-                                        "Dimensions": [{"Key": "JobFlowId", "Value": "${emr.clusterId}"},],
+                                        "Dimensions": [{"Key": "JobFlowId", "Value": "${emr.clusterId}"}, ],
                                     }
                                 },
                             },
