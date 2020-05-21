@@ -9,7 +9,7 @@ echo "Created VirtualEnv"
 source /tmp/cc_project_python/venv/bin/activate
 echo "Activated VirtualEnv"
 pip install -r requirements.txt
-pytest
+#pytest
 deactivate
 echo "Deactivated VirtualEnv"
 
