@@ -160,6 +160,8 @@ def update_stats_for_day(covid_df, stats_df, day, initial_working_hours):
 
     stats_df.loc[day,'Work'] = (get_working_hours(covid_df)/initial_working_hours) * 100
 
+    stats_df.loc[day,'Work'] = (get_working_hours(covid_df)/initial_working_hours) * 100
+
     return covid_df, stats_df
 
 
@@ -309,7 +311,6 @@ def interact(covid_df, day, yesterday_patients, dist_limit):
                 else:
                     covid_df = infect(covid_df, day, j)
     return covid_df
-
 
 def get_covid_df_plt_color(df):
     """
