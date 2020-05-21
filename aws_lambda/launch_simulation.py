@@ -1,4 +1,3 @@
-import configparser
 import json
 import logging
 import os
@@ -24,7 +23,7 @@ if len(logging.getLogger().handlers) > 0:
 else:
     logging.basicConfig(level=logging.INFO)
 
-ssm_client = boto3.client("ssm")
+ssm_client = boto3.client("ssm", region_name="us-east-1")
 emr_client = boto3.client("emr", region_name="us-east-1")
 app_config_path = os.environ["APP_CONFIG_PATH"]
 full_config_path = "/" + app_config_path
@@ -38,52 +37,35 @@ class SimulationLauncher:
     bootstrap_script_path: str
     instance_type: str
 
-    def __init__(self, config):
+    def __init__(self, ssm_parameter_path):
         """
         Construct new SimulationLauncher with configuration
         :param config: application configuration
         """
-        sections = config._sections
-        self.simulation_app = sections["simulation_app"]
-        self.simulation_app = sections["log_path"]
-        self.bootstrap_script_path = sections["bootstrap_script_path"]
-        self.instance_type = sections["instance_type"]
+        config_dict = {}
+        try:
+            # Get all parameters for this app
+            param_details = ssm_client.get_parameters_by_path(
+                Path=ssm_parameter_path, Recursive=False, WithDecryption=True
+            )
 
+            # Loop through the returned parameters and populate the ConfigParser
+            if "Parameters" in param_details and len(param_details.get("Parameters")) > 0:
+                for param in param_details.get("Parameters"):
+                    param_path_array = param.get("Name").split("/")
+                    section_position = len(param_path_array) - 1
+                    section_name = param_path_array[section_position]
+                    config_values = param.get("Value")
+                    config_dict[section_name] = config_values
+                    logging.info("Found configuration: " + str(config_dict))
 
-def load_config(ssm_parameter_path):
-    """
-    Load configparser from config stored in SSM Parameter Store
-    :param ssm_parameter_path: Path to app config in SSM Parameter Store
-    :return: ConfigParser holding loaded config
-    """
-    configuration = configparser.ConfigParser()
-    try:
-        # Get all parameters for this app
-        param_details = ssm_client.get_parameters_by_path(Path=ssm_parameter_path, Recursive=False, WithDecryption=True)
-
-        # Loop through the returned parameters and populate the ConfigParser
-        if "Parameters" in param_details and len(param_details.get("Parameters")) > 0:
-            for param in param_details.get("Parameters"):
-                param_path_array = param.get("Name").split("/")
-                section_position = len(param_path_array) - 1
-                section_name = param_path_array[section_position]
-                config_values = json.loads(param.get("Value"))
-                config_dict = {section_name: config_values}
-                logging.info("Found configuration: " + str(config_dict))
-                configuration.read_dict(config_dict)
-
-    except:
-        print("Encountered an error loading config from SSM.")
-        traceback.print_exc()
-    finally:
-        return configuration
-
-
-SIMULATION_APP = "s3://cc-project-simulation-app/wordcount.py"
-LOGS = "s3://cc-project-simulation-app-logs"
-BOOTSTRAP_SCRIPT = "s3://cc-project-simulation-app/bootstrap.sh"
-
-INSTANCE_TYPE = "c4.xlarge"
+        except:
+            print("Encountered an error loading config from SSM.")
+            traceback.print_exc()
+        self.simulation_app = config_dict["simulation_app"]
+        self.simulation_app = config_dict["log_path"]
+        self.bootstrap_script_path = config_dict["bootstrap_script_path"]
+        self.instance_type = config_dict["instance_type"]
 
 
 def lambda_handler(event, context):
@@ -91,8 +73,7 @@ def lambda_handler(event, context):
     # Initialize app if it doesn't yet exist
     if app is None:
         logging.info("Loading config and creating new SimulationLauncher...")
-        config = load_config(full_config_path)
-        app = SimulationLauncher(config)
+        app = SimulationLauncher(full_config_path)
     claims = utils.fetch_claims(event)
     user_id = claims[SUB]
     logging.info(f"Running Simulation for subject {user_id}")
@@ -118,14 +99,14 @@ def create_emr(simulation_id: str, user_id: str) -> Dict[str, str]:
     response = emr_client.run_job_flow(
         Name=simulation_id,
         ReleaseLabel="emr-6.0.0",
-        LogUri=app,
+        LogUri=app.log_path,
         Instances={
             "InstanceGroups": [
                 {
                     "Name": "Master-1",
                     "Market": "ON_DEMAND",
                     "InstanceRole": "MASTER",
-                    "InstanceType": INSTANCE_TYPE,
+                    "InstanceType": app.instance_type,
                     "InstanceCount": 1,
                     "EbsConfiguration": disk_config,
                 },
@@ -133,7 +114,7 @@ def create_emr(simulation_id: str, user_id: str) -> Dict[str, str]:
                     "Name": "Core-1",
                     "Market": "ON_DEMAND",
                     "InstanceRole": "CORE",
-                    "InstanceType": INSTANCE_TYPE,
+                    "InstanceType": app.instance_type,
                     "InstanceCount": 1,
                     "EbsConfiguration": disk_config,
                 },
@@ -141,7 +122,7 @@ def create_emr(simulation_id: str, user_id: str) -> Dict[str, str]:
                     "Name": "Auto Scaling Group",
                     "Market": "SPOT",
                     "InstanceRole": "TASK",
-                    "InstanceType": INSTANCE_TYPE,
+                    "InstanceType": app.instance_type,
                     "InstanceCount": 1,
                     "EbsConfiguration": disk_config,
                     "AutoScalingPolicy": {
@@ -191,12 +172,14 @@ def create_emr(simulation_id: str, user_id: str) -> Dict[str, str]:
                         "cluster",
                         "--master",
                         "yarn",
-                        SIMULATION_APP,
+                        app.simulation_app,
                     ],
                 },
             },
         ],
-        BootstrapActions=[{"Name": "Setup cluster", "ScriptBootstrapAction": {"Path": BOOTSTRAP_SCRIPT, "Args": []}}],
+        BootstrapActions=[
+            {"Name": "Setup cluster", "ScriptBootstrapAction": {"Path": app.bootstrap_script_path, "Args": []}}
+        ],
         Applications=[{"Name": "Spark"}],
         Configurations=[
             {
@@ -214,3 +197,8 @@ def create_emr(simulation_id: str, user_id: str) -> Dict[str, str]:
 
 
 # create_emr("b777d642-beac-48c6-8618-080001952041", "88ac8d98-c594-4c8d-b6d5-95442910554b")
+
+if __name__ == "__main__":
+    if app is None:
+        logging.info("Loading config and creating new SimulationLauncher...")
+        app = SimulationLauncher("/simulation_lambda")

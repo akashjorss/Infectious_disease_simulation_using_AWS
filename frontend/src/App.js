@@ -6,10 +6,10 @@ import SimulationRunner from './SimulationRunner'
 
 function App() {
     Auth.configure({
-        userPoolId: "us-east-1_cNxGqM6Qf",
-        userPoolWebClientId: "2mjs8c33p7qvk1mrv8t8ijdbjm",
+        userPoolId: "us-east-1_XdMtRyhXb",
+        userPoolWebClientId: "27oqm7qb9fetpssarl4dsdvidu",
         region: "us-east-1"
-    })
+    }),
     return (
         <div className="App">
             <header className="App-header">
