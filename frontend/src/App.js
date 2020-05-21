@@ -9,7 +9,7 @@ function App() {
         userPoolId: "us-east-1_XdMtRyhXb",
         userPoolWebClientId: "27oqm7qb9fetpssarl4dsdvidu",
         region: "us-east-1"
-    }),
+    })
     return (
         <div className="App">
             <header className="App-header">
