@@ -1,5 +1,8 @@
+import configparser
 import json
 import logging
+import os
+import traceback
 import uuid
 from typing import Dict
 
@@ -21,6 +24,61 @@ if len(logging.getLogger().handlers) > 0:
 else:
     logging.basicConfig(level=logging.INFO)
 
+ssm_client = boto3.client("ssm")
+emr_client = boto3.client("emr", region_name="us-east-1")
+app_config_path = os.environ["APP_CONFIG_PATH"]
+full_config_path = "/" + app_config_path
+# Initialize app at global scope for reuse across invocations
+app = None
+
+
+class SimulationLauncher:
+    simulation_app: str
+    log_path: str
+    bootstrap_script_path: str
+    instance_type: str
+
+    def __init__(self, config):
+        """
+        Construct new SimulationLauncher with configuration
+        :param config: application configuration
+        """
+        sections = config._sections
+        self.simulation_app = sections["simulation_app"]
+        self.simulation_app = sections["log_path"]
+        self.bootstrap_script_path = sections["bootstrap_script_path"]
+        self.instance_type = sections["instance_type"]
+
+
+def load_config(ssm_parameter_path):
+    """
+    Load configparser from config stored in SSM Parameter Store
+    :param ssm_parameter_path: Path to app config in SSM Parameter Store
+    :return: ConfigParser holding loaded config
+    """
+    configuration = configparser.ConfigParser()
+    try:
+        # Get all parameters for this app
+        param_details = ssm_client.get_parameters_by_path(Path=ssm_parameter_path, Recursive=False, WithDecryption=True)
+
+        # Loop through the returned parameters and populate the ConfigParser
+        if "Parameters" in param_details and len(param_details.get("Parameters")) > 0:
+            for param in param_details.get("Parameters"):
+                param_path_array = param.get("Name").split("/")
+                section_position = len(param_path_array) - 1
+                section_name = param_path_array[section_position]
+                config_values = json.loads(param.get("Value"))
+                config_dict = {section_name: config_values}
+                logging.info("Found configuration: " + str(config_dict))
+                configuration.read_dict(config_dict)
+
+    except:
+        print("Encountered an error loading config from SSM.")
+        traceback.print_exc()
+    finally:
+        return configuration
+
+
 SIMULATION_APP = "s3://cc-project-simulation-app/wordcount.py"
 LOGS = "s3://cc-project-simulation-app-logs"
 BOOTSTRAP_SCRIPT = "s3://cc-project-simulation-app/bootstrap.sh"
@@ -29,6 +87,12 @@ INSTANCE_TYPE = "c4.xlarge"
 
 
 def lambda_handler(event, context):
+    global app
+    # Initialize app if it doesn't yet exist
+    if app is None:
+        logging.info("Loading config and creating new SimulationLauncher...")
+        config = load_config(full_config_path)
+        app = SimulationLauncher(config)
     claims = utils.fetch_claims(event)
     user_id = claims[SUB]
     logging.info(f"Running Simulation for subject {user_id}")
@@ -44,17 +108,17 @@ def lambda_handler(event, context):
 
 
 def create_emr(simulation_id: str, user_id: str) -> Dict[str, str]:
-    client = boto3.client("emr", region_name="us-east-1")
+    global app
     disk_config = {
         "EbsBlockDeviceConfigs": [
             {"VolumeSpecification": {"VolumeType": "gp2", "SizeInGB": 10}, "VolumesPerInstance": 1},
         ],
         "EbsOptimized": False,
     }
-    response = client.run_job_flow(
+    response = emr_client.run_job_flow(
         Name=simulation_id,
         ReleaseLabel="emr-6.0.0",
-        LogUri=LOGS,
+        LogUri=app,
         Instances={
             "InstanceGroups": [
                 {

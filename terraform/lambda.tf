@@ -12,6 +12,11 @@ resource "aws_lambda_function" "launch_simulation" {
   publish = true
   role    = aws_iam_role.lambda_exec.arn
   //  Code deployed from CI / CD
+  environment {
+    variables = {
+      APP_CONFIG_PATH = local.simulation_app
+    }
+  }
   lifecycle {
     ignore_changes = [
       filename,
@@ -58,6 +63,14 @@ data "aws_iam_policy_document" "iam_policy_for_lambda" {
     "iam:PassRole"]
     resources = [
     "*"]
+  }
+  statement {
+    sid    = "ConfigReader"
+    effect = "Allow"
+    actions = [
+    "ssm:GetParameter*"]
+    resources = [
+    "arn:aws:ssm:${data.aws_region.region.name}:${data.aws_caller_identity.current.account_id}:parameter/${local.simulation_app}*"]
   }
 }
 

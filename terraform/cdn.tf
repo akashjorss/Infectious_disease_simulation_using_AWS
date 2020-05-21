@@ -1,14 +1,11 @@
 resource "aws_s3_bucket" "fe_s3" {
-  bucket = "cc-project-2020-fe"
-  acl    = "private"
-
+  bucket        = "${data.aws_caller_identity.current.account_id}-cc-project-2020-fe"
+  acl           = "private"
+  force_destroy = true
   tags = {
     Name = "FE code"
   }
 
-  lifecycle {
-    prevent_destroy = true
-  }
 }
 
 locals {
@@ -124,7 +121,4 @@ resource "aws_cloudfront_distribution" "fe_s3_distribution" {
 
   //  Costly to create hence prevent destroy
 
-  lifecycle {
-    prevent_destroy = true
-  }
 }
