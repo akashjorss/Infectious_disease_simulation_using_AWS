@@ -1,68 +1,33 @@
+![Code Build Status](https://codebuild.us-east-1.amazonaws.com/badges?uuid=eyJlbmNyeXB0ZWREYXRhIjoieXE0aWNZKzVqK0liZGRKREFrQ1dpeTBzdEpuTFg3TmFsYzdyOXZjU05GNDQvNXVpY3RzRm5UbXM5Ry95U2tmY08vaWpQRCtSWURiOEJFb29xN2w3Z09RPSIsIml2UGFyYW1ldGVyU3BlYyI6InQyUVJ1aGFVOU43NTVOdkgiLCJtYXRlcmlhbFNldFNlcmlhbCI6MX0%3D&branch=master)
+# Contact Tracking
+
 To view the tutorial of our research project (CI/CD for AWS Lambda) go [here](./research/tutorial/README.md).
+
+### Folder Structure
+- `aws_lambda` - for all serverless functions
+- `frontend` - folder contains react codebase for our frontend
+- `simulator` - Spark Simulation app with requirements and script to bootstrap EMR
+- `terraform` - scripts for IaC
+- `tests` - for our lambda and simulator modules
+
 ### Python project setup
 
-To run the project
-```
-python3 -m blueprint
-```
 Enforcing PEP8 standards:
-A pre-commit hook is configured to automatically enforce the PEP-8 standards using yapf. 
+A pre-commit hook configured automatically enforces the PEP-8 standards using yapf. 
 
 To run unit tests
-```
+```shell script
+pip install -r requirements.txt
 pytest
 ```
-It runs the test contained in the file test_app.py
 
-Example output of failed test:
-```
-=========================================================================== FAILURES ============================================================================
-___________________________________________________________________________ test_app ____________________________________________________________________________
+### Frontend
+The frontend is a ReactJS app and uses `npm` for dependency management and building.
 
-capsys = <_pytest.capture.CaptureFixture object at 0x10d1481d0>, example_fixture = None
-
-    def test_app(capsys, example_fixture):
-        # pylint: disable=W0612,W0613
-        blueprint.Blueprint.run()
-        captured = capsys.readouterr()
-    
->       assert "Hello World.." == captured.out
-E       AssertionError: assert 'Hello World..' == 'Hello World...\n'
-E         - Hello World...
-E         ?              --
-E         + Hello World..
-
-tests/test_app.py:9: AssertionError
----------------------------------------------------------------------- Captured log setup -----------------------------------------------------------------------
-INFO     tests.conftest:conftest.py:9 Setting Up Example Fixture...
---------------------------------------------------------------------- Captured log teardown ---------------------------------------------------------------------
-INFO     tests.conftest:conftest.py:11 Tearing Down Example Fixture...
-
----------- coverage: platform darwin, python 3.7.5-final-0 -----------
-
-==================================================================== short test summary info ====================================================================
-FAILED tests/test_app.py::test_app - AssertionError: assert 'Hello World..' == 'Hello World...\n'
-======================================================================= 1 failed in 0.10s =======================================================================
-```
-Example output of successful test:
-```
------------------------------------------------------------------------- live log setup -------------------------------------------------------------------------
-2020-05-01 01:04:03 [    INFO] Setting Up Example Fixture... (conftest.py:9)
-PASSED                                                                                                                                                    [100%]
------------------------------------------------------------------------ live log teardown -----------------------------------------------------------------------
-2020-05-01 01:04:03 [    INFO] Tearing Down Example Fixture... (conftest.py:11)
-Coverage.py warning: No data was collected. (no-data-collected)
-WARNING: Failed to generate report: No data to report.
-
-/Users/akashmalhotra/PycharmProjects/CC_Project/venv/lib/python3.7/site-packages/pytest_cov/plugin.py:254: PytestWarning: Failed to generate report: No data to report.
-
-  self.cov_controller.finish()
-
-
----------- coverage: platform darwin, python 3.7.5-final-0 -----------
-
-
-======================================================================= 1 passed in 0.07s =======================================================================
+```shell script
+npm install
+npm run-script start
+npm run-script build
 ```
 
 ### Infrastructure setup
@@ -73,4 +38,4 @@ Note how variables are passed in
 terraform init
 terraform apply -var="github_personal_token=1111aaaaa" -var="github_username=username"
 ```
-Verify plan shown and accept it with `yes`
+Verify the plan shown and accept it with `yes`
