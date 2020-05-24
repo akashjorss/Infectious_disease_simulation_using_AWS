@@ -8,6 +8,11 @@ from pyspark import SparkContext
 from pyspark.sql import *
 from pyspark.sql import functions as F
 
+# clear data in elastic
+from elastic import Elastic  # needs to be changed to from simulator.elastic import Elastic when run from project root dir
+Elastic.clear_data('covid_df')
+Elastic.clear_data('stats_df')
+Elastic.clear_data('eco_df')
 
 def point(x_limit, y_limit):
     """
@@ -41,12 +46,12 @@ def initalize_simulation_dataframes(N, x_limit, y_limit, status_type, motion_fac
     assert isinstance(y_limit, int)
 
     # Create the covid-19 dataframe, stores the state of all the actors in population
-    covid_df = pd.DataFrame(columns="pid,X,Y,Covid19,Day".split(","))
+    covid_df = pd.DataFrame(columns="pid,X,Y,Covid-19,Day".split(","))
 
     for i in range(N):
         covid_df.loc[i, "X"], covid_df.loc[i, "Y"] = point(x_limit, y_limit)
         covid_df.loc[i, "pid"] = i
-        covid_df.loc[i, "Covid19"] = 0
+        covid_df.loc[i, "Covid-19"] = 0
 
     sample_size = math.floor(motion_factor)
     movers_list = covid_df.sample(n=sample_size).index.values.tolist()
@@ -54,7 +59,7 @@ def initalize_simulation_dataframes(N, x_limit, y_limit, status_type, motion_fac
     covid_df = assign_working_status(covid_df, status_type)
 
     # data_frame to keep track of daily statistics
-    stats_df = pd.DataFrame(columns="Healthy,Covid-19(+),Hospitalized,Cured,Dead,Work".split(","))
+    stats_df = pd.DataFrame(columns="simulationID,Day,Healthy,Covid-19(+),Hospitalized,Cured,Dead,Work".split(","))
     return covid_df, stats_df, movers_list
 
 
@@ -117,12 +122,12 @@ def infect(df, day, person):
         return df
 
     # If the person is not already infected, infect him/her and record the day of infection
-    df = df.withColumn("Covid19", F.when(df["pid"] == person, 1).otherwise(df["Covid19"]))
+    df = df.withColumn("Covid-19", F.when(df["pid"] == person, 1).otherwise(df["Covid-19"]))
     df = df.withColumn("Day", F.when(df["pid"] == person, day).otherwise(df["Day"]))
     return df
 
 
-def update_stats_for_day(sc, covid_df, stats_df, day, initial_working_hours):
+def update_stats_for_day(sc, simID, covid_df, stats_df, day, initial_working_hours):
     """
     Update the statistics for the given day
     Keyword arguments:
@@ -132,13 +137,15 @@ def update_stats_for_day(sc, covid_df, stats_df, day, initial_working_hours):
     """
     assert isinstance(day, int)
 
-    covid_count_list = dict(covid_df.groupBy("Covid19").count().collect())
+    covid_count_list = dict(covid_df.groupBy("Covid-19").count().collect())
 
     for value in [1, 0, 115, 7, 666]:
         if value not in covid_count_list.keys():
             covid_count_list[value] = 0
 
     if day == 0:
+        stats_df.loc[day, "simulationID"] = simID 
+        stats_df.loc[day, "Day"] = day
         stats_df.loc[day, "Healthy"] = covid_count_list[0]
         stats_df.loc[day, "Covid-19(+)"] = covid_count_list[1]
         stats_df.loc[day, "Hospitalized"] = covid_count_list[115]
@@ -150,7 +157,8 @@ def update_stats_for_day(sc, covid_df, stats_df, day, initial_working_hours):
         working_hours = (get_working_hours(covid_df) / initial_working_hours) * 100
         newRow = sc.createDataFrame(
             [
-                (
+                (   simID,
+                    day,
                     covid_count_list[0],
                     covid_count_list[1],
                     covid_count_list[115],
@@ -174,11 +182,11 @@ def update_working_hours(covid_df):
     """
 
     covid_df = covid_df.withColumn(
-        "working_hours", F.when(covid_df["Covid19"] == True, 0).otherwise(covid_df["working_hours"])
+        "working_hours", F.when(covid_df["Covid-19"] == 1, 0).otherwise(covid_df["working_hours"])
     )
     covid_df = covid_df.withColumn(
         "working_hours",
-        F.when((covid_df["Covid19"] == 7) & (covid_df["status"] == "Working"), 40).otherwise(covid_df["working_hours"]),
+        F.when((covid_df["Covid-19"] == 7) & (covid_df["status"] == "Working"), 40).otherwise(covid_df["working_hours"]),
     )
     return covid_df
 
@@ -195,26 +203,26 @@ def kill(df, kill_prob=0.005):
     assert kill_prob >= 0
     assert kill_prob <= 1
 
-    sample_size = math.floor(df.filter((df["Covid19"] == True) | (df["Covid19"] == 115)).count() * kill_prob)
+    sample_size = math.floor(df.filter((df["Covid-19"] == 1) | (df["Covid-19"] == 115)).count() * kill_prob)
 
     try:
-        sample_fraction = sample_size / df.filter(df["Covid19"] == True).count()
+        sample_fraction = sample_size / df.filter(df["Covid-19"] == 1).count()
     except ZeroDivisionError:
         sample_fraction = 0
 
-    if sample_size > df.filter(df["Covid19"] == True).count():
+    if sample_size > df.filter(df["Covid-19"] == 1).count():
         return df
 
     df = df.withColumn("survival_chance", F.rand())
     df = df.withColumn(
-        "Covid19",
-        F.when((df["Covid19"] == True) & (df["survival_chance"] < sample_fraction), 666).otherwise(df["Covid19"]),
+        "Covid-19",
+        F.when((df["Covid-19"] == 1) & (df["survival_chance"] < sample_fraction), 666).otherwise(df["Covid-19"]),
     )
     df = df.drop("survival_chance")
     return df
 
 
-def hospitalize(df, hosp_prob=0.03):
+def hospitalize(df, hosp_prob=0.3):
     """
     Hospitalize a fraction of population given by hosp_prob
     Keyword arguments:
@@ -226,15 +234,15 @@ def hospitalize(df, hosp_prob=0.03):
     assert hosp_prob >= 0
     assert hosp_prob <= 1
 
-    sample_size = math.floor(df.filter(df["Covid19"] == True).count() * hosp_prob)
-    sample_fraction = sample_size / df.filter(df["Covid19"] == True).count()
+    sample_size = math.floor(df.filter(df["Covid-19"] == 1).count() * hosp_prob)
+    sample_fraction = sample_size / df.filter(df["Covid-19"] == 1).count()
 
-    if sample_size > df.filter(df["Covid19"] == True).count():
+    if sample_size > df.filter(df["Covid-19"] == 1).count():
         return df
 
     df = df.withColumn("hosp_chance", F.rand())
     df = df.withColumn(
-        "Covid19", F.when((df["Covid19"] == True) & (df["hosp_chance"] < sample_fraction), 115).otherwise(df["Covid19"])
+        "Covid-19", F.when((df["Covid-19"] == 1) & (df["hosp_chance"] < sample_fraction), 115).otherwise(df["Covid-19"])
     )
     df = df.drop("hosp_chance")
     return df
@@ -250,8 +258,8 @@ def cure(df, day):
 
     assert isinstance(day, int)
 
-    df = df.withColumn("Covid19", F.when((df["Day"] < day - 10) & (df["Covid19"] == True), 7).otherwise(df["Covid19"]))
-    df = df.withColumn("Covid19", F.when((df["Day"] < day - 21) & (df["Covid19"] == 115), 7).otherwise(df["Covid19"]))
+    df = df.withColumn("Covid-19", F.when((df["Day"] < day - 10) & (df["Covid-19"] == 1), 7).otherwise(df["Covid-19"]))
+    df = df.withColumn("Covid-19", F.when((df["Day"] < day - 21) & (df["Covid-19"] == 115), 7).otherwise(df["Covid-19"]))
     return df
 
 
@@ -267,7 +275,7 @@ def random_walk(df, movers_list, x_limit, y_limit):
 
     result = df.collect()
     for i in movers_list:
-        if (result[i].Covid19 == 115) or (result[i].Covid19 == 666):
+        if (result[i]['Covid-19'] == 115) or (result[i]['Covid-19'] == 666):
             movers_list.remove(i)
 
     def get_random(x):
@@ -315,8 +323,8 @@ def interact(covid_df, day, yesterday_patients, dist_limit):
     assert isinstance(day, int)
 
     distance_pairs = (
-        covid_df["pid", "X", "Y", "Covid19"]
-        .crossJoin(covid_df["pid", "X", "Y", "Covid19"])
+        covid_df["pid", "X", "Y", "Covid-19"]
+        .crossJoin(covid_df["pid", "X", "Y", "Covid-19"])
         .toDF("pid1", "X1", "Y1", "Covid19_1", "pid2", "X2", "Y2", "Covid19_2")
     )
 
@@ -344,7 +352,7 @@ def interact(covid_df, day, yesterday_patients, dist_limit):
     persons_to_infect = [row.pid1 for row in persons_to_infect.collect()]
 
     covid_df = covid_df.withColumn(
-        "Covid19", F.when(covid_df["pid"].isin(persons_to_infect), 1).otherwise(covid_df["Covid19"])
+        "Covid-19", F.when(covid_df["pid"].isin(persons_to_infect), 1).otherwise(covid_df["Covid-19"])
     )
     covid_df = covid_df.withColumn(
         "Day", F.when(covid_df["pid"].isin(persons_to_infect), day).otherwise(covid_df["Day"])
@@ -364,13 +372,13 @@ def get_covid_df_plt_color(df):
     # list to store colors for each person
     cols = []
     for l in df.index:
-        if df.loc[l, "Covid19"] == True:  # Infected
+        if df.loc[l, "Covid-19"] == 1:  # Infected
             cols.append("red")
-        elif df.loc[l, "Covid19"] == 666:  # Dead
+        elif df.loc[l, "Covid-19"] == 666:  # Dead
             cols.append("black")
-        elif df.loc[l, "Covid19"] == 115:  # Hospitalized
+        elif df.loc[l, "Covid-19"] == 115:  # Hospitalized
             cols.append("yellow")
-        elif df.loc[l, "Covid19"] == 7:  # Cured
+        elif df.loc[l, "Covid-19"] == 7:  # Cured
             cols.append("green")
         else:
             cols.append("blue")  # Healthy
@@ -396,7 +404,7 @@ def get_covid_stat_plt_color(stats_df):
             cols.append("yellow")
         elif i == "Cured":  # Cured
             cols.append("green")
-        else:
+        elif i == "Healthy":
             cols.append("blue")  # Healthy
     return cols
 
@@ -476,8 +484,7 @@ def plot_day(df, fig, axs, stats_df, day, movers_list, show=False, savefig=False
 
 
 def run_simulation(
-    N, x_limit, y_limit, dist_limit, SHOW_PLOT_FLAG=False, SAVE_PLOT_FLAG=False, simulation_id=0
-):  ## SIMULATION PARAMETERS
+    N, x_limit, y_limit, dist_limit, motion_factor=0.1, SHOW_PLOT_FLAG=False, SAVE_PLOT_FLAG=False, simulation_id="sim_id_random"):  ## SIMULATION PARAMETERS
     assert N is not None
     assert x_limit is not None
     assert y_limit is not None
@@ -489,11 +496,8 @@ def run_simulation(
     sqlContext = SQLContext(sc)
 
     ## SIMULATION PARAMETERS
-    MOTION_FACTOR = min(5, N * 0.1)
+    MOTION_FACTOR = float(motion_factor) * N
     day = 0
-
-    SHOW_PLOT_FLAG = True
-    SAVE_PLOT_FLAG = False
 
     status_type = {"Student": 0.1, "Working": 0.7, "Child": 0.1, "Old": 0.1}
 
@@ -506,7 +510,7 @@ def run_simulation(
 
     covid_df = sqlContext.createDataFrame(covid_df)
 
-    working_hours_today = initial_working_hours = get_working_hours(covid_df)
+    initial_working_hours = get_working_hours(covid_df)
 
     ## Start the simulation by infecting a random person
     random_person = random.randrange(N)
@@ -517,20 +521,21 @@ def run_simulation(
 
     ## Plot the static graph
     print("-" * 20)
-    covid_df, stats_df = update_stats_for_day(sqlContext, covid_df, stats_df, day, initial_working_hours)
+    covid_df, stats_df = update_stats_for_day(sqlContext, simulation_id, covid_df, stats_df, day, initial_working_hours)
     # Now we have some data in stats_df, convert into spark df
     stats_df = sqlContext.createDataFrame(stats_df)
 
     covid_df = update_working_hours(covid_df)
-    yesterday_patients = list(covid_df.toPandas()["Covid19"])
-    covid_df = covid_df.withColumn("Covid19", covid_df["Covid19"].cast("int"))
+    yesterday_patients = list(covid_df.toPandas()["Covid-19"])
+    covid_df = covid_df.withColumn("Covid-19", covid_df["Covid-19"].cast("int"))
     covid_df, stats_df, day, movers_list = simulate_next_day(covid_df, stats_df, day, movers_list, x_limit, y_limit)
     covid_df = interact(covid_df, day, yesterday_patients, dist_limit)
 
     ## Day 1
+    Elastic.load_sim_data(covid_df.toPandas(), stats_df.toPandas())
     # plot_day(covid_df.toPandas(), fig, axs, stats_df.toPandas(), day, movers_list, show=SHOW_PLOT_FLAG,
     #          savefig=SAVE_PLOT_FLAG)
-    covid_df, stats_df = update_stats_for_day(sqlContext, covid_df, stats_df, day, initial_working_hours)
+    covid_df, stats_df = update_stats_for_day(sqlContext, simulation_id, covid_df, stats_df, day, initial_working_hours)
 
     count_sames = 0
     healthy = stats_df.select("Healthy").collect()[-1].Healthy
@@ -543,14 +548,15 @@ def run_simulation(
         else:
             count_sames = 0
 
-        yesterday_patients = list(covid_df.toPandas()["Covid19"])
+        yesterday_patients = list(covid_df.toPandas()["Covid-19"])
         covid_df, stats_df, day, movers_list = simulate_next_day(covid_df, stats_df, day, movers_list, x_limit, y_limit)
         covid_df = interact(covid_df, day, yesterday_patients, dist_limit)
         covid_df = update_working_hours(covid_df)
         working_hours = get_working_hours(covid_df)
+        Elastic.load_sim_data(covid_df.toPandas(), stats_df.toPandas())
         # plot_day(covid_df.toPandas(), fig, axs, stats_df.toPandas(), day, movers_list, show=SHOW_PLOT_FLAG,
         #          savefig=SAVE_PLOT_FLAG)
-        covid_df, stats_df = update_stats_for_day(sqlContext, covid_df, stats_df, day, initial_working_hours)
+        covid_df, stats_df = update_stats_for_day(sqlContext, simulation_id, covid_df, stats_df, day, initial_working_hours)
 
         healthy = stats_df.select("Healthy").collect()[-1].Healthy
         print(31 * "-")
@@ -590,13 +596,20 @@ if __name__ == "__main__":
         default=1.5,
         help="Distance threshold to infect another person",
     )
+
+    parser.add_argument(
+        "-mov_rate",
+        action="store",
+        dest="mov_rate",
+        default=0.1,
+        help='Rate of infection spread, correlated with the motion')
+
     parser.add_argument(
         "-show_plot", action="store_true", default="False", help="Shows plot, Keep it false on a server"
     )
     parser.add_argument("-save_plot", action="store_true", default="False", help="Saves plot on the disk")
 
     args = parser.parse_args()
-
     run_simulation(
         N=args.N, x_limit=args.x_limit, y_limit=args.y_limit, dist_limit=args.dist_limit, simulation_id=args.simID
     )
