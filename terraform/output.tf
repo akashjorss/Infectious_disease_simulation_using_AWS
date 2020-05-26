@@ -13,3 +13,11 @@ output "cognito_hosted_ui" {
 output "fe_domain" {
   value = aws_cloudfront_distribution.fe_s3_distribution.domain_name
 }
+
+output "kibana_client_id" {
+  value = aws_cognito_user_pool_client.kibana-project-client.id
+}
+
+output "kibana_client_secret" {
+  value = aws_cognito_user_pool_client.kibana-project-client.client_secret
+}

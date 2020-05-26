@@ -16,6 +16,12 @@ variable "cognito_callback_urls" {
   description = "Callback URLs for client"
 }
 
+variable "kibana_callback_urls" {
+  default     = ["https://c2f89c43548c40da8c9ade5dae6918e4.us-east-1.aws.found.io:9243/api/security/oidc/callback"]
+  type        = list(string)
+  description = "Callback URLs Kibana"
+}
+
 variable "cognito_signout_url" {
   default     = "https://www.localhost/signout"
   type        = string
