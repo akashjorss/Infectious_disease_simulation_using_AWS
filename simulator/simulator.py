@@ -55,7 +55,10 @@ def initalize_simulation_dataframes(N, x_limit, y_limit, motion_factor=5):
     movers_list = covid_df.sample(n=sample_size).index.values.tolist()
 
     # Dataframe to keep track of daily statistics
-    stats_df = pd.DataFrame(columns='simulationID,Day,Healthy,Covid-19(+),Hospitalized,Cured,Dead,Work'.split(','))
+    stats_df = pd.DataFrame(
+        columns=
+        'simulationID,Day,Healthy,Covid-19(+),Hospitalized,Cured,Dead,Work'.
+        split(','))
     return covid_df, stats_df, movers_list
 
 
@@ -165,7 +168,8 @@ def update_stats_for_day(covid_df, stats_df, day, initial_working_hours):
     stats_df.loc[day, 'Cured'] = covid_list.count(7)
     stats_df.loc[day, 'Dead'] = covid_list.count(666)
 
-    stats_df.loc[day, 'Work'] = (get_working_hours(covid_df) / initial_working_hours) * 100
+    stats_df.loc[day, 'Work'] = (get_working_hours(covid_df) /
+                                 initial_working_hours) * 100
 
     return covid_df, stats_df
 
@@ -183,9 +187,12 @@ def kill(df, kill_prob=0.005):
     assert kill_prob >= 0
     assert kill_prob <= 1
 
-    samplesize = math.floor(len(df[df['Covid-19'] == 1]) * kill_prob + len(df[df['Covid-19'] == 115]) * kill_prob)
+    samplesize = math.floor(
+        len(df[df['Covid-19'] == 1]) * kill_prob +
+        len(df[df['Covid-19'] == 115]) * kill_prob)
     if samplesize > len(df[df['Covid-19'] == 1]): return
-    df.loc[df[df['Covid-19'] == 1].sample(n=samplesize).index.values.tolist(), 'Covid-19'] = 666
+    df.loc[df[df['Covid-19'] == 1].sample(n=samplesize).index.values.tolist(),
+           'Covid-19'] = 666
     return df
 
 
@@ -204,7 +211,8 @@ def hospitalize(df, hosp_prob=0.03):
 
     samplesize = math.floor(len(df[df['Covid-19'] == 1]) * hosp_prob)
     if samplesize > len(df[df['Covid-19'] == 1]): return
-    df.loc[df[df['Covid-19'] == 1].sample(n=samplesize).index.values.tolist(), 'Covid-19'] = 115
+    df.loc[df[df['Covid-19'] == 1].sample(n=samplesize).index.values.tolist(),
+           'Covid-19'] = 115
     return df
 
 
@@ -237,7 +245,8 @@ def random_walk(df, movers_list, x_limit, y_limit):
         if (df.loc[i, 'Covid-19'] == 115) or (df.loc[i, 'Covid-19'] == 666):
             movers_list.remove(i)
 
-        df.loc[i, 'X'], df.loc[i, 'Y'] = (df.loc[i, 'X'] + random.uniform(1, x_limit / 3)) % x_limit, (
+        df.loc[i, 'X'], df.loc[i, 'Y'] = (
+            df.loc[i, 'X'] + random.uniform(1, x_limit / 3)) % x_limit, (
                 df.loc[i, 'Y'] + random.uniform(1, y_limit / 3)) % y_limit
 
     return df, movers_list
@@ -260,7 +269,8 @@ def simulate_next_day(covid_df, stats_df, day, movers_list, x_limit, y_limit):
     covid_df = kill(covid_df)
     covid_df = hospitalize(covid_df)
     covid_df = cure(covid_df, day)
-    covid_df, movers_list = random_walk(covid_df, movers_list, x_limit, y_limit)
+    covid_df, movers_list = random_walk(covid_df, movers_list, x_limit,
+                                        y_limit)
 
     return covid_df, stats_df, day, movers_list
 
@@ -282,9 +292,10 @@ def check(covid_df, i, j, yesterday_patients, dist_limit):
     assert isinstance(yesterday_patients, list)
     assert isinstance(dist_limit, float)
 
-    dist = math.sqrt(
-        (covid_df.loc[i, 'X'] - covid_df.loc[j, 'X']) ** 2 + (covid_df.loc[i, 'Y'] - covid_df.loc[j, 'Y']) ** 2)
-    flag = ((yesterday_patients[i] == 1) ^ (yesterday_patients[j] == 1)) and dist < dist_limit
+    dist = math.sqrt((covid_df.loc[i, 'X'] - covid_df.loc[j, 'X'])**2 +
+                     (covid_df.loc[i, 'Y'] - covid_df.loc[j, 'Y'])**2)
+    flag = ((yesterday_patients[i] == 1) ^
+            (yesterday_patients[j] == 1)) and dist < dist_limit
     return flag
 
 
@@ -357,7 +368,14 @@ def get_covid_stat_plt_color(stats_df):
     return cols
 
 
-def plot_day(df, fig, axs, stats_df, day, movers_list, show=False, savefig=False):
+def plot_day(df,
+             fig,
+             axs,
+             stats_df,
+             day,
+             movers_list,
+             show=False,
+             savefig=False):
     """
     Plot the simulation results for the day
     Keyword arguments:
@@ -386,8 +404,15 @@ def plot_day(df, fig, axs, stats_df, day, movers_list, show=False, savefig=False
     axs[0].cla()
     axs[0].scatter(df['X'], df['Y'], s=4, c=cols)
     for i in movers_list:
-        axs[0].scatter(df.loc[i, 'X'], df.loc[i, 'Y'], s=1, facecolors='none', edgecolors='black')
-        axs[0].text(df.loc[i, 'X'] + 0.02, df.loc[i, 'Y'] + 0.02, str(i), fontsize=5)
+        axs[0].scatter(df.loc[i, 'X'],
+                       df.loc[i, 'Y'],
+                       s=1,
+                       facecolors='none',
+                       edgecolors='black')
+        axs[0].text(df.loc[i, 'X'] + 0.02,
+                    df.loc[i, 'Y'] + 0.02,
+                    str(i),
+                    fontsize=5)
 
     cols = get_covid_stat_plt_color(stats_df)
     day_string = str(day)
@@ -415,7 +440,10 @@ def plot_day(df, fig, axs, stats_df, day, movers_list, show=False, savefig=False
 
     axs[2].cla()
     axs[2].plot(stats_df.Work, label='Economic Impact', color=cols[0])
-    axs[2].plot([50] * day, '--', label='Economic danger threshold', color=cols[1])
+    axs[2].plot([50] * day,
+                '--',
+                label='Economic danger threshold',
+                color=cols[1])
     axs[2].legend(loc='upper left', borderaxespad=0.)
 
     plt.ylim(top=100, bottom=0)
@@ -430,7 +458,13 @@ def plot_day(df, fig, axs, stats_df, day, movers_list, show=False, savefig=False
         plt.savefig(title)
 
 
-def run_simulation(N, x_limit, y_limit, dist_limit, motion_factor=0.1, SHOW_PLOT_FLAG=False, SAVE_PLOT_FLAG=False,
+def run_simulation(N,
+                   x_limit,
+                   y_limit,
+                   dist_limit,
+                   motion_factor=0.1,
+                   SHOW_PLOT_FLAG=False,
+                   SAVE_PLOT_FLAG=False,
                    simulation_id="sim_id_random"):  ## SIMULATION PARAMETERS
     assert N is not None
     assert x_limit is not None
@@ -448,7 +482,8 @@ def run_simulation(N, x_limit, y_limit, dist_limit, motion_factor=0.1, SHOW_PLOT
 
     print(f"Running Simulation with ID: {simulation_id}")
 
-    covid_df, stats_df, movers_list = initalize_simulation_dataframes(N, x_limit, y_limit, motion_factor=MOTION_FACTOR)
+    covid_df, stats_df, movers_list = initalize_simulation_dataframes(
+        N, x_limit, y_limit, motion_factor=MOTION_FACTOR)
     print(f"covid_df: {covid_df}\n")
     print(f"stats_df: {stats_df}\n")
     print(f"movers_list: {movers_list}\n")
@@ -474,21 +509,38 @@ def run_simulation(N, x_limit, y_limit, dist_limit, motion_factor=0.1, SHOW_PLOT
     print("PLOTTING FIGURE")
     fig, axs = plt.subplots(3)
     fig.suptitle('Covid-19 Epidemic Sample Model', fontsize=16)
-    plot_day(covid_df, fig, axs, stats_df, day, movers_list, show=SHOW_PLOT_FLAG, savefig=SAVE_PLOT_FLAG)
+    plot_day(covid_df,
+             fig,
+             axs,
+             stats_df,
+             day,
+             movers_list,
+             show=SHOW_PLOT_FLAG,
+             savefig=SAVE_PLOT_FLAG)
 
     ## Plot the static graph
     print("-" * 20)
-    covid_df, stats_df = update_stats_for_day(covid_df, stats_df, day, initial_working_hours)
+    covid_df, stats_df = update_stats_for_day(covid_df, stats_df, day,
+                                              initial_working_hours)
     covid_df = update_working_hours(covid_df)
 
     yesterday_patients = list(covid_df['Covid-19'])
-    covid_df, stats_df, day, movers_list = simulate_next_day(covid_df, stats_df, day, movers_list, x_limit, y_limit)
+    covid_df, stats_df, day, movers_list = simulate_next_day(
+        covid_df, stats_df, day, movers_list, x_limit, y_limit)
     covid_df = interact(covid_df, day, yesterday_patients, dist_limit)
 
     ## Day 1
     Elastic.load_sim_data(covid_df, stats_df)
-    plot_day(covid_df, fig, axs, stats_df, day, movers_list, show=SHOW_PLOT_FLAG, savefig=SAVE_PLOT_FLAG)
-    covid_df, stats_df = update_stats_for_day(covid_df, stats_df, day, initial_working_hours)
+    plot_day(covid_df,
+             fig,
+             axs,
+             stats_df,
+             day,
+             movers_list,
+             show=SHOW_PLOT_FLAG,
+             savefig=SAVE_PLOT_FLAG)
+    covid_df, stats_df = update_stats_for_day(covid_df, stats_df, day,
+                                              initial_working_hours)
 
     count_sames = 0
     stats_df['simulationID'] = simulation_id
@@ -501,13 +553,22 @@ def run_simulation(N, x_limit, y_limit, dist_limit, motion_factor=0.1, SHOW_PLOT
             count_sames = 0
 
         yesterday_patients = list(covid_df['Covid-19'])
-        covid_df, stats_df, day, movers_list = simulate_next_day(covid_df, stats_df, day, movers_list, x_limit, y_limit)
+        covid_df, stats_df, day, movers_list = simulate_next_day(
+            covid_df, stats_df, day, movers_list, x_limit, y_limit)
         covid_df = interact(covid_df, day, yesterday_patients, dist_limit)
         covid_df = update_working_hours(covid_df)
         working_hours = get_working_hours(covid_df)
         Elastic.load_sim_data(covid_df, stats_df)
-        plot_day(covid_df, fig, axs, stats_df, day, movers_list, show=SHOW_PLOT_FLAG, savefig=SAVE_PLOT_FLAG)
-        covid_df, stats_df = update_stats_for_day(covid_df, stats_df, day, initial_working_hours)
+        plot_day(covid_df,
+                 fig,
+                 axs,
+                 stats_df,
+                 day,
+                 movers_list,
+                 show=SHOW_PLOT_FLAG,
+                 savefig=SAVE_PLOT_FLAG)
+        covid_df, stats_df = update_stats_for_day(covid_df, stats_df, day,
+                                                  initial_working_hours)
         stats_df['simulationID'] = simulation_id
 
         print(31 * '-')
@@ -523,25 +584,63 @@ def run_simulation(N, x_limit, y_limit, dist_limit, motion_factor=0.1, SHOW_PLOT
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description='Arguments for the COVID-19 Simulation')
-    parser.add_argument('-simID', action="store", dest="simID", help='Simulation ID', default="sim_id_random")
-    parser.add_argument('-N', action="store", dest="N", type=int, default=300,
-                        help='Population Size to simulate (Note: Large N can slow down computations)')
-    parser.add_argument('-x_limit', action="store", dest="x_limit", type=int, default=30,
+    parser = argparse.ArgumentParser(
+        description='Arguments for the COVID-19 Simulation')
+    parser.add_argument('-simID',
+                        action="store",
+                        dest="simID",
+                        help='Simulation ID',
+                        default="sim_id_random")
+    parser.add_argument(
+        '-N',
+        action="store",
+        dest="N",
+        type=int,
+        default=300,
+        help=
+        'Population Size to simulate (Note: Large N can slow down computations)'
+    )
+    parser.add_argument('-x_limit',
+                        action="store",
+                        dest="x_limit",
+                        type=int,
+                        default=30,
                         help='X-axis limit of 2D canvas')
-    parser.add_argument('-y_limit', action="store", dest="y_limit", type=int, default=30,
+    parser.add_argument('-y_limit',
+                        action="store",
+                        dest="y_limit",
+                        type=int,
+                        default=30,
                         help='Y-axis limit of 2D canvas')
-    parser.add_argument('-dist_thres', action="store", dest="dist_limit", default=1.5,
+    parser.add_argument('-dist_thres',
+                        action="store",
+                        dest="dist_limit",
+                        default=1.5,
                         help='Distance threshold to infect another person')
-    parser.add_argument('-mov_rate', action="store", dest="mov_rate", default=0.15,
-                        help='Rate of infection spread, correlated with the motion')
-    parser.add_argument('-show_plot', action="store_true", default="False", dest='show_plot',
+    parser.add_argument(
+        '-mov_rate',
+        action="store",
+        dest="mov_rate",
+        default=0.15,
+        help='Rate of infection spread, correlated with the motion')
+    parser.add_argument('-show_plot',
+                        action="store_true",
+                        default="False",
+                        dest='show_plot',
                         help='Shows plot, Keep it false on a server')
-    parser.add_argument('-save_plot', action="store_true", default="False", dest='save_plot',
+    parser.add_argument('-save_plot',
+                        action="store_true",
+                        default="False",
+                        dest='save_plot',
                         help='Saves plot on the disk')
 
     args = parser.parse_args()
 
-    run_simulation(N=args.N, x_limit=args.x_limit, y_limit=args.y_limit, dist_limit=args.dist_limit,
+    run_simulation(N=args.N,
+                   x_limit=args.x_limit,
+                   y_limit=args.y_limit,
+                   dist_limit=args.dist_limit,
                    motion_factor=args.mov_rate,
-                   simulation_id=args.simID, SHOW_PLOT_FLAG=args.show_plot, SAVE_PLOT_FLAG=args.save_plot)
+                   simulation_id=args.simID,
+                   SHOW_PLOT_FLAG=args.show_plot,
+                   SAVE_PLOT_FLAG=args.save_plot)

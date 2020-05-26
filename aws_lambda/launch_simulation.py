@@ -45,11 +45,11 @@ class SimulationLauncher:
             # Get all parameters for this app
             ssm_client = boto3.client("ssm", region_name="us-east-1")
             param_details = ssm_client.get_parameters_by_path(
-                Path=ssm_parameter_path, Recursive=False, WithDecryption=True
-            )
+                Path=ssm_parameter_path, Recursive=False, WithDecryption=True)
 
             # Loop through the returned parameters and populate the ConfigParser
-            if "Parameters" in param_details and len(param_details.get("Parameters")) > 0:
+            if "Parameters" in param_details and len(
+                    param_details.get("Parameters")) > 0:
                 for param in param_details.get("Parameters"):
                     param_path_array = param.get("Name").split("/")
                     section_position = len(param_path_array) - 1
@@ -82,7 +82,9 @@ def lambda_handler(event, context):
     logging.info(f"Cluster ARN and JobID ${json.dumps(response)}")
     return {
         "statusCode": 200,
-        "headers": {"Access-Control-Allow-Origin": "*"},
+        "headers": {
+            "Access-Control-Allow-Origin": "*"
+        },
         "body": json.dumps({"simulation_id": simulation_id}),
     }
 
@@ -92,9 +94,16 @@ def create_emr(simulation_id: str, user_id: str) -> Dict[str, str]:
     emr_client = boto3.client("emr", region_name="us-east-1")
     disk_config = {
         "EbsBlockDeviceConfigs": [
-            {"VolumeSpecification": {"VolumeType": "gp2", "SizeInGB": 10}, "VolumesPerInstance": 1},
+            {
+                "VolumeSpecification": {
+                    "VolumeType": "gp2",
+                    "SizeInGB": 10
+                },
+                "VolumesPerInstance": 1
+            },
         ],
-        "EbsOptimized": False,
+        "EbsOptimized":
+        False,
     }
     response = emr_client.run_job_flow(
         Name=simulation_id,
@@ -126,7 +135,10 @@ def create_emr(simulation_id: str, user_id: str) -> Dict[str, str]:
                     "InstanceCount": 1,
                     "EbsConfiguration": disk_config,
                     "AutoScalingPolicy": {
-                        "Constraints": {"MinCapacity": 0, "MaxCapacity": 10},
+                        "Constraints": {
+                            "MinCapacity": 0,
+                            "MaxCapacity": 10
+                        },
                         "Rules": [
                             {
                                 "Name": "Scale Out",
@@ -140,15 +152,28 @@ def create_emr(simulation_id: str, user_id: str) -> Dict[str, str]:
                                 },
                                 "Trigger": {
                                     "CloudWatchAlarmDefinition": {
-                                        "ComparisonOperator": "LESS_THAN",
-                                        "EvaluationPeriods": 1,
-                                        "MetricName": "YARNMemoryAvailablePercentage",
-                                        "Namespace": "AWS/ElasticMapReduce",
-                                        "Period": 300,
-                                        "Statistic": "AVERAGE",
-                                        "Threshold": 25,
-                                        "Unit": "PERCENT",
-                                        "Dimensions": [{"Key": "JobFlowId", "Value": "${emr.clusterId}"}, ],
+                                        "ComparisonOperator":
+                                        "LESS_THAN",
+                                        "EvaluationPeriods":
+                                        1,
+                                        "MetricName":
+                                        "YARNMemoryAvailablePercentage",
+                                        "Namespace":
+                                        "AWS/ElasticMapReduce",
+                                        "Period":
+                                        300,
+                                        "Statistic":
+                                        "AVERAGE",
+                                        "Threshold":
+                                        25,
+                                        "Unit":
+                                        "PERCENT",
+                                        "Dimensions": [
+                                            {
+                                                "Key": "JobFlowId",
+                                                "Value": "${emr.clusterId}"
+                                            },
+                                        ],
                                     }
                                 },
                             },
@@ -156,15 +181,18 @@ def create_emr(simulation_id: str, user_id: str) -> Dict[str, str]:
                     },
                 },
             ],
-            "KeepJobFlowAliveWhenNoSteps": False,
-            "TerminationProtected": False,
+            "KeepJobFlowAliveWhenNoSteps":
+            False,
+            "TerminationProtected":
+            False,
         },
         Steps=[
             {
                 "Name": "simulation",
                 "ActionOnFailure": "TERMINATE_CLUSTER",
                 "HadoopJarStep": {
-                    "Jar": "command-runner.jar",
+                    "Jar":
+                    "command-runner.jar",
                     "Args": [
                         "/usr/bin/spark-submit",
                         "--verbose",
@@ -177,21 +205,34 @@ def create_emr(simulation_id: str, user_id: str) -> Dict[str, str]:
                 },
             },
         ],
-        BootstrapActions=[
-            {"Name": "Setup cluster", "ScriptBootstrapAction": {"Path": app.bootstrap_script_path, "Args": []}}
-        ],
-        Applications=[{"Name": "Spark"}],
-        Configurations=[
-            {
-                "Classification": "spark-env",
-                "Configurations": [{"Classification": "export", "Properties": {"PYSPARK_PYTHON": "/usr/bin/python3"}}],
+        BootstrapActions=[{
+            "Name": "Setup cluster",
+            "ScriptBootstrapAction": {
+                "Path": app.bootstrap_script_path,
+                "Args": []
             }
-        ],
+        }],
+        Applications=[{
+            "Name": "Spark"
+        }],
+        Configurations=[{
+            "Classification":
+            "spark-env",
+            "Configurations": [{
+                "Classification": "export",
+                "Properties": {
+                    "PYSPARK_PYTHON": "/usr/bin/python3"
+                }
+            }],
+        }],
         VisibleToAllUsers=True,
         JobFlowRole="EMR_EC2_DefaultRole",
         ServiceRole="EMR_DefaultRole",
         AutoScalingRole="EMR_AutoScaling_DefaultRole",
-        Tags=[{"Key": "user", "Value": user_id}],
+        Tags=[{
+            "Key": "user",
+            "Value": user_id
+        }],
     )
     return response
 

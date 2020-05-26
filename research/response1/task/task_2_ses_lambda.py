@@ -10,8 +10,9 @@ SENDER = "Infection Alerter <snithishemircc@armyspy.com>"
 SUBJECT = "You have been in contact with infected person"
 
 # The email body for recipients with non-HTML email clients.
-BODY_TEXT = ("You have come in contact with an infected person. Quarantine yourself for 14 days."
-             )
+BODY_TEXT = (
+    "You have come in contact with an infected person. Quarantine yourself for 14 days."
+)
 
 # The HTML body of the email.
 BODY_HTML = """<html>

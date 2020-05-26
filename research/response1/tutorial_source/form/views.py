@@ -9,5 +9,7 @@ def home(request):
 
 def signup(request):
     leads = Leads()
-    status = leads.insert_lead(request.POST['email'], request.POST['latitude'], request.POST['longitude'] , request.POST['infectedFlag'])
+    status = leads.insert_lead(request.POST['email'], request.POST['latitude'],
+                               request.POST['longitude'],
+                               request.POST['infectedFlag'])
     return HttpResponse('', status=status)

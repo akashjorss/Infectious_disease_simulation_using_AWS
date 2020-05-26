@@ -1,0 +1,51 @@
+{
+  // We use Vega-Lite syntax here instead of Vega. The Vega visualization
+  // supports both and we can specify which one we want to use by specifying
+  // the corresponding schema here.
+  $schema: "https://vega.github.io/schema/vega-lite/v2.json"
+  // Use points for drawing to actually create a scatterplot
+  mark: line
+  point: true
+
+  // Specify where to load data from
+  data: {
+    // By using an object to the url parameter we will
+    // construct an Elasticsearch query
+    url: {
+      // Context == true means filters of the dashboard will be taken into account
+      %context%: true
+      // Specify on which field the time picker should operate
+      //%timefield%: @timestamp
+      // Specify the index pattern to load data from
+      index: stats_df
+      // This body will be send to Elasticsearch's _search endpoint
+      // You can use everything the ES Query DSL supports here
+      body: {
+        // Set the size to load 10000 documents
+        size: 300,
+        // Just ask for the fields we actually need for visualization
+        _source: ['day', 'status', 'value']
+      }
+    }
+    format: { property: "hits.hits" }
+  }
+  encoding: {
+    x: {
+      field: _source.day
+      type: quantitative
+      axis: { title: "Day" }
+    }
+    y: {
+      field: _source.value
+      type: quantitative
+      axis: { title: "Number of people" }
+    }
+    color: {
+      field: _source.status
+      type: nominal
+      legend: { title: 'Status' }
+    }
+    }
+
+
+}

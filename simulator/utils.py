@@ -47,8 +47,9 @@ def initalize_simulation_dataframes(N, x_limit, y_limit, motion_factor=5):
     movers_list = covid_df.sample(n=sample_size).index.values.tolist()
 
     # Dataframe to keep track of daily statistics
-    stats_df = pd.DataFrame(columns='Healthy,Covid-19(+),Hospitalized,Cured,Dead,Work'.split(','))
-    return covid_df , stats_df, movers_list
+    stats_df = pd.DataFrame(
+        columns='Healthy,Covid-19(+),Hospitalized,Cured,Dead,Work'.split(','))
+    return covid_df, stats_df, movers_list
 
 
 def assign_working_status(covid_df, status_type):
@@ -82,7 +83,7 @@ def assign_working_status(covid_df, status_type):
     random.shuffle(zip_list)
 
     status_list, working_hours = zip(*zip_list)
-    
+
     covid_df['status'] = status_list
     covid_df['working_hours'] = working_hours
     return covid_df
@@ -106,12 +107,11 @@ def update_working_hours(covid_df):
     print(covid_df.columns)
     mask = (covid_df['Covid-19'] == True)
     covid_df['working_hours'][mask] = 0
-    mask1 = covid_df['Covid-19'] == 7 
+    mask1 = covid_df['Covid-19'] == 7
     mask2 = covid_df['status'] == 'Working'
     covid_df['working_hours'][mask1 & mask2] = 40
 
     return covid_df
-
 
 
 def infect(df, day, person):
@@ -158,9 +158,11 @@ def update_stats_for_day(covid_df, stats_df, day, initial_working_hours):
     stats_df.loc[day, "Cured"] = covid_list.count(7)
     stats_df.loc[day, "Dead"] = covid_list.count(666)
 
-    stats_df.loc[day,'Work'] = (get_working_hours(covid_df)/initial_working_hours) * 100
+    stats_df.loc[day, 'Work'] = (get_working_hours(covid_df) /
+                                 initial_working_hours) * 100
 
-    stats_df.loc[day,'Work'] = (get_working_hours(covid_df)/initial_working_hours) * 100
+    stats_df.loc[day, 'Work'] = (get_working_hours(covid_df) /
+                                 initial_working_hours) * 100
 
     return covid_df, stats_df
 
@@ -312,6 +314,7 @@ def interact(covid_df, day, yesterday_patients, dist_limit):
                     covid_df = infect(covid_df, day, j)
     return covid_df
 
+
 def get_covid_df_plt_color(df):
     """
     Samples colors according to the covid-state of the persn
@@ -423,18 +426,20 @@ def plot_day(df,
     )  # labels along the bottom edge are off
 
     axs[1].cla()
-    axs[1].plot(stats_df.Healthy,label=ld[0],color=cols[0])
-    axs[1].plot(stats_df['Covid-19(+)'],label=ld[1],color=cols[1])
-    axs[1].plot(stats_df.Hospitalized,label=ld[2],color=cols[2])
-    axs[1].plot(stats_df.Cured,label=ld[3],color=cols[3])
-    axs[1].plot(stats_df.Dead,label=ld[4],color=cols[4])
-
+    axs[1].plot(stats_df.Healthy, label=ld[0], color=cols[0])
+    axs[1].plot(stats_df['Covid-19(+)'], label=ld[1], color=cols[1])
+    axs[1].plot(stats_df.Hospitalized, label=ld[2], color=cols[2])
+    axs[1].plot(stats_df.Cured, label=ld[3], color=cols[3])
+    axs[1].plot(stats_df.Dead, label=ld[4], color=cols[4])
 
     axs[1].legend(bbox_to_anchor=(0, 1), loc='upper left', borderaxespad=0.)
 
     axs[2].cla()
     axs[2].plot(stats_df.Work, label='Economic Impact', color=cols[0])
-    axs[2].plot([50]*day, '--',label='Economic danger threshold', color=cols[1])
+    axs[2].plot([50] * day,
+                '--',
+                label='Economic danger threshold',
+                color=cols[1])
     axs[2].legend(loc='upper left', borderaxespad=0.)
 
     plt.ylim(top=100, bottom=0)

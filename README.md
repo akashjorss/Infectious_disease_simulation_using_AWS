@@ -1,6 +1,7 @@
 ![Code Build Status](https://codebuild.us-east-1.amazonaws.com/badges?uuid=eyJlbmNyeXB0ZWREYXRhIjoieXE0aWNZKzVqK0liZGRKREFrQ1dpeTBzdEpuTFg3TmFsYzdyOXZjU05GNDQvNXVpY3RzRm5UbXM5Ry95U2tmY08vaWpQRCtSWURiOEJFb29xN2w3Z09RPSIsIml2UGFyYW1ldGVyU3BlYyI6InQyUVJ1aGFVOU43NTVOdkgiLCJtYXRlcmlhbFNldFNlcmlhbCI6MX0%3D&branch=master)
 # Contact Tracking
-
+To view our project report go [here](./Documentation/CC_Project_Report.pdf).<br>
+To view our project presentation go [here](./Documentation/CC_Project_Presentation.pdf).<br>
 To view the tutorial of our research project (CI/CD for AWS Lambda) go [here](./research/tutorial/README.md).
 
 ### Folder Structure

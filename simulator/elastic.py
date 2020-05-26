@@ -63,10 +63,8 @@ class Elastic:
     @staticmethod
     def load_data(data, index):
 
-        es = Elasticsearch(
-            cloud_id= Elastic.cloud_id,
-            http_auth=(Elastic.username, Elastic.password)
-        )
+        es = Elasticsearch(cloud_id=Elastic.cloud_id,
+                           http_auth=(Elastic.username, Elastic.password))
 
         # to make the index if it doesn't exist
         es.index(index, data.iloc[0].to_json(), id=0)
@@ -88,10 +86,8 @@ class Elastic:
 
     @staticmethod
     def delete_data(index, id_range):
-        es = Elasticsearch(
-            cloud_id= Elastic.cloud_id,
-            http_auth=(Elastic.username, Elastic.password)
-        )
+        es = Elasticsearch(cloud_id=Elastic.cloud_id,
+                           http_auth=(Elastic.username, Elastic.password))
         # Bulk delete
         actions = [{
             "_op_type": 'delete',
@@ -105,8 +101,6 @@ class Elastic:
 
     @staticmethod
     def clear_data(index):
-        es = Elasticsearch(
-            cloud_id=Elastic.cloud_id,
-            http_auth=(Elastic.username, Elastic.password)
-        )
+        es = Elasticsearch(cloud_id=Elastic.cloud_id,
+                           http_auth=(Elastic.username, Elastic.password))
         es.delete_by_query(index, body={"query": {"match_all": {}}})
