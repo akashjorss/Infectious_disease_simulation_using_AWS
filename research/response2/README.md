@@ -119,7 +119,7 @@ As we are using Fargate in this section the obvious choice is Network Only and p
 2. Once the cluster is created, we create a task that will be running on the cluster we just created. To create a task move to Task Definitions option on the ECS menu and create a task definition.
 ![](imgs/task_created.png)
 
-3. Now, we add a container to the task definition. We use Docker hub’s URL if your image is deployed on docker hub.
+3. Now, we add a container to the task definition. We use Docker hub’s URL as our image is deployed on docker hub.
 ![](imgs/add_container.png)
 
 4. Once the container is added,run a new task by clicking on Run new Task and the following screen appears.
@@ -130,3 +130,14 @@ As we are using Fargate in this section the obvious choice is Network Only and p
 
 6. You can click on the task and get the details of your running service. In the network section, you can see your public IP where you can see your service running. This is not a static IP and it changes if you restart your task. You can use Amazon ALB to assign an Elastic IP.
 ![](imgs/task_running.png)
+
+Finally, the deployed app can be accessed using the static IP provided.
+![](cctutorial-foodtruck/shot.png)
+### Q4: Can you think of a good use case of using multiple Docker containers for your project?
+A good use case of Docker is its use in multi-tenant applications, thereby avoiding major application rewrites. For example is to develop quick and easy multi-tenancy for an IoT application. Code bases for such multi-tenant applications are far more complicated, rigid and difficult to handle. Rearchitecting an application is not only time consuming, but also costs a lot of money. Using Docker, it can be very easy and inexpensive to create isolated environments for running multiple instances of app tiers for each tenant. 
+
+### Q5: What is the most interesting thing you have learnt in this tutorial? What are the problems and how do you solve them?
+Ans: The tutorial was very interesting. We learned about the containerization and how applications can be deployed in an isolated and light-weight environments as compared to the virtual machines. The tutorial also taks about deploying containers on AWS Elastic Container service which was a very useful learning experience.
+
+We faced some problems in the deployment of container on ECS. First of all, using the ecs-cli, we faced credentials issues on the educate account as it was not able to validate the credentials provided. The issue was resolved by creating a cluster using AWS console and deploying a docker image on it using console. Since, the tutorial talked about cli way of deployment, we had to look for docker and ecs documentation to get the container on ecs working.
+
