@@ -18,4 +18,18 @@ When we call the `docker run` function, the docker takes the following steps:
     
 ### Useful Docker Commands
 
+`docker ps`
 ![](imgs/docker_ps.png)
+
+`docker ps -a`
+![](imgs/docker_ps_a.png)
+
+`docker container prune`
+![](imgs/docker_prune.png)
+
+![](imgs/docker_ps.png)
+`docker images`
+
+![](imgs/docker_images.png)
+
+`docker rmi [img ID]`
