@@ -48,3 +48,12 @@ After clearning the containers, `docker ps -a` reponse is also empty
 `docker rmi [img ID]` - removes the image with [imgID].
 
 The commands helped us familiarize with the common docker commands to get started with docker.
+
+### Building a Docker Image
+To build the docker image, following steps were taken according to the tutorial.
+
+1. Clone the repo `https://github.com/prakhar1989/docker-curriculum.git`
+2. cd to `docker-curriculum/flask-app`
+3. Run the build command `docker build -t haroonrashid/catnip .`
+
+![](imgs/docker_build.png)
