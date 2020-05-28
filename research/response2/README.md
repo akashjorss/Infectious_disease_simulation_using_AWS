@@ -79,4 +79,54 @@ The following steps are taken to build and run the docker image for the foodtruc
 3. Once the docker is successfully built, it is run locally by using `docker run -p 5000:5000 haroonrashid/foodtrucks-web`
 4. Finally docker is pushed to the dockerhub using `docker push haroonrashid235/foodtrucks-23b`
 
+Next, `ecs-cli` is installed on the machine to access the Elastic Container service using the command line.
 
+![](imgs/ecs_cli.png)
+
+ECS profile is conifgured for the user's AWS acount, using the user's `access-key` and `secret-access-key`.  
+`ecs-cli configure profile --profile-name ecs-foodtrucks --access-key $AWS_ACCESS_KEY_ID --secret-key $AWS_SECRET_ACCESS_KEY`
+
+A key-pair is created that is used to access the ecs-cluster and run tasks on it.
+![](imgs/key_pair.png)
+
+Finally, the cluster is created using the follwing command.
+
+`ecs-cli up --keypair ecs_test --capability-iam --size 1 --instance-type t2.medium`
+
+### Q3: What do you think all the parameters mean?
+`--keypair`: Specifies the name of an existing Amazon EC2 key pair to enable SSH access to the EC2 instances in your cluster
+`capability-iam`: Acknowledges that this command may create IAM resources
+`--size`: Specifies the number of instances to launch and register to the cluster.
+`--instance-type`: Specifies the type of EC2 instance to launch.
+
+
+
+**Note: There were some issues with the credentials from the ecs-cli and the cluster could not run from the cli. Instead we created the cluster using the AWS console whose process is given below.**
+
+## Creating ECS cluster from the AWS console
+AWS provides you with two options to run your containers.
+1. Fargate (Network Only): A serverless infrastructure maintained by Amazon ECS i.e. not exactly server less but you do not need to take the pain of maintaining and scaling the server.
+2. EC2: We can use Elastic Compute Cloud with ECS to get more control over the server on which your container would be running.
+
+We chose fargate for this tutorial, because it is serverless whose advantages we are well aware of. The steps for creating a cluster and running container on the AWS ECS are given below:
+
+1. We create a cluster by selecting Elastic Container Service from AWS service list, select Clusters and create.
+![](imgs/create_cluster.png)
+
+As we are using Fargate in this section the obvious choice is Network Only and proceed with creating a cluster by entering the name of the cluster and networking details.
+![](imgs/cluster_created.png)
+
+2. Once the cluster is created, we create a task that will be running on the cluster we just created. To create a task move to Task Definitions option on the ECS menu and create a task definition.
+![](imgs/task_created.png)
+
+3. Now, we add a container to the task definition. We use Docker hub’s URL if your image is deployed on docker hub.
+![](imgs/add_container.png)
+
+4. Once the container is added,run a new task by clicking on Run new Task and the following screen appears.
+![](imgs/launch_task.png)
+
+5. Submit the details by clicking on Run. You will be able to view your task listed under the Tasks tab on the cluster with a RUNNING status.
+![](imgs/run_task.png)
+
+6. You can click on the task and get the details of your running service. In the network section, you can see your public IP where you can see your service running. This is not a static IP and it changes if you restart your task. You can use Amazon ALB to assign an Elastic IP.
+![](imgs/task_running.png)
