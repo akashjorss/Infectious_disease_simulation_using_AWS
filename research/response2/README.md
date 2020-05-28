@@ -63,8 +63,20 @@ To build the docker image, following steps were taken according to the tutorial.
 ![](imgs/docker_images_after_build.png)
 
 5. The docker image is run using `docker run -p 5000:5000 haroonrashid/catnip`
+
 ![](imgs/docker_run.png)
 
 6. The flask app is accessed at `localhost:5000`. The port 5000 is exposed for the app in the dockerfile.
+
 ![](imgs/flask_app.png)
+
+## Deploying Docker on ECS
+This part of the tutorial uses multiple docker containers and deploys them on Elastic Container Service (ECS) provided by AWS.
+
+The following steps are taken to build and run the docker image for the foodtrucks-web app.
+1. Clone the repo provided by the tutorial's author `https://github.com/aristonhariantolim/cctutorial-foodtruck.git`
+2. cd to `cctutorial-foodtruck` and build the docker by running `docker build -t haroonrashid235/foodtrucks-web .`
+3. Once the docker is successfully built, it is run locally by using `docker run -p 5000:5000 haroonrashid/foodtrucks-web`
+4. Finally docker is pushed to the dockerhub using `docker push haroonrashid235/foodtrucks-23b`
+
 
