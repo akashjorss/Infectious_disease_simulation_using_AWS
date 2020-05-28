@@ -1,16 +1,21 @@
-from datetime import datetime
+import time
+
+import boto3
+import pandas as pd
 from elasticsearch import Elasticsearch
 from elasticsearch import helpers
-import time
-import pandas as pd
-import os
+
+
+def ssm_param(ssm_client, param: str) -> str:
+    response = ssm_client.get_parameter(Name=f"/spark_simulation_app/{param}", WithDecryption=True)
+    return response['Parameter']['Value']
 
 
 class Elastic:
-
-    cloud_id = os.environ['ELASTIC_CLOUD_ID']
-    username = os.environ['ELASTIC_USERNAME']
-    password = os.environ['ELASTIC_PASSWORD']
+    ssm_client = boto3.client("ssm", region_name="us-east-1")
+    cloud_id = ssm_param(ssm_client, "cloud_id")
+    username = ssm_param(ssm_client, "username")
+    password = ssm_param(ssm_client, "password")
 
     @staticmethod
     def load_sim_data(_covid_df, _stats_df):
@@ -69,7 +74,7 @@ class Elastic:
         # to make the index if it doesn't exist
         es.index(index, data.iloc[0].to_json(), id=0)
 
-        #Bulk insert
+        # Bulk insert
         actions = [{
             "_index": index,
             "_type": "_doc",

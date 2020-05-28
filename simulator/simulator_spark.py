@@ -1,19 +1,101 @@
 import argparse
 import math
 import random
+import time
+import uuid
 
+import boto3
 import matplotlib.pyplot as plt
 import pandas as pd
+from elasticsearch import Elasticsearch
+from elasticsearch import helpers
 from pyspark import SparkContext
 from pyspark.sql import *
 from pyspark.sql import functions as F
 
-# clear data in elastic
-from elastic import Elastic  # needs to be changed to from simulator.elastic import Elastic when run from project root dir
-Elastic.clear_data('covid_df')
-Elastic.clear_data('stats_df')
-Elastic.clear_data('eco_df')
 
+def ssm_param(ssm_client, param: str) -> str:
+    response = ssm_client.get_parameter(Name=f"/spark_simulation_app/{param}", WithDecryption=True)
+    return response['Parameter']['Value']
+
+
+class Elastic:
+    ssm_client = boto3.client("ssm", region_name="us-east-1")
+    cloud_id = ssm_param(ssm_client, "cloud_id")
+    username = ssm_param(ssm_client, "username")
+    password = ssm_param(ssm_client, "password")
+
+    @staticmethod
+    def load_sim_data(_covid_df, _stats_df):
+        """Wrapper to load simulation data"""
+
+        # make a copy so original values are not transformed
+        covid_df = _covid_df.copy()
+        stats_df = _stats_df.copy()
+
+        # transform the values in covid_df for legend
+        D = {
+            0: 'Healthy',
+            1: 'Infected',
+            666: 'Dead',
+            115: 'Hospitalized',
+            7: 'Cured'
+        }
+        for k, v in D.items():
+            covid_df.loc[covid_df['Covid-19'] == k, 'Covid-19'] = v
+
+        # transform the values in stats_df for legend and to show multicolor lines
+        temp_df = pd.DataFrame(columns=['day', 'status', 'value'])
+        eco_df = pd.DataFrame(columns=['day', 'percentage', 'type'])
+        stats_df = stats_df.drop(['simulationID', 'Work'], axis=1)
+        for i in range(len(stats_df)):
+            for col in stats_df.columns:
+                doc = {'day': i, 'status': col, 'value': stats_df.loc[i][col]}
+                temp_df = temp_df.append(doc, ignore_index=True)
+            eco_df = eco_df.append(
+                {
+                    'day': i,
+                    'percentage': _stats_df.loc[i]['Work'],
+                    'type': 'Work'
+                },
+                ignore_index=True)
+            eco_df = eco_df.append(
+                {
+                    'day': i,
+                    'percentage': 50,
+                    'type': 'Threshold'
+                },
+                ignore_index=True)
+
+        stats_df = temp_df
+
+        Elastic.load_data(covid_df, "covid_df")
+        Elastic.load_data(stats_df, "stats_df")
+        Elastic.load_data(eco_df, "eco_df")
+
+    @staticmethod
+    def load_data(data, index):
+
+        es = Elasticsearch(cloud_id=Elastic.cloud_id,
+                           http_auth=(Elastic.username, Elastic.password))
+
+        # to make the index if it doesn't exist
+        es.index(index, data.iloc[0].to_json(), id=0)
+
+        # Bulk insert
+        actions = [{
+            "_index": index,
+            "_type": "_doc",
+            "_id": str(uuid.uuid4()),
+            "_source": data.loc[j].to_json()
+        } for j in range(0, len(data))]
+
+        st = time.time()
+        helpers.bulk(es, actions)
+        end = time.time()
+        print("total time to bulk insert", end - st)
+
+        es.indices.refresh(index=index)
 
 def point(x_limit, y_limit):
     """
@@ -67,7 +149,7 @@ def initalize_simulation_dataframes(N,
     stats_df = pd.DataFrame(
         columns=
         "simulationID,Day,Healthy,Covid-19(+),Hospitalized,Cured,Dead,Work".
-        split(","))
+            split(","))
     return covid_df, stats_df, movers_list
 
 
@@ -311,12 +393,12 @@ def random_walk(df, movers_list, x_limit, y_limit):
         "X",
         F.when(df["pid"].isin(movers_list),
                (df["X"] + udf_get_random(df["X"])) % x_limit).otherwise(
-                   df["X"]))
+            df["X"]))
     df = df.withColumn(
         "Y",
         F.when(df["pid"].isin(movers_list),
                (df["Y"] + udf_get_random(df["Y"])) % y_limit).otherwise(
-                   df["Y"]))
+            df["Y"]))
 
     # df.filter(df['pid'].isin(movers_list)).show()
     return df, movers_list
@@ -361,7 +443,7 @@ def interact(covid_df, day, yesterday_patients, dist_limit):
         distance_pairs.pid1 != distance_pairs.pid2)
 
     def get_distance(x1, y1, x2, y2):
-        return math.sqrt((x1 - x2)**2 + (y1 - y2)**2)
+        return math.sqrt((x1 - x2) ** 2 + (y1 - y2) ** 2)
 
     udf_get_distance = F.udf(get_distance)
 
@@ -601,7 +683,7 @@ def run_simulation(N,
     count_sames = 0
     healthy = stats_df.select("Healthy").collect()[-1].Healthy
 
-    while healthy > 0 and day < 100:
+    while healthy > 0 and day < 20:
         if list(stats_df.toPandas().loc[day]) == list(
                 stats_df.toPandas().loc[day - 1]):
             count_sames += 1
