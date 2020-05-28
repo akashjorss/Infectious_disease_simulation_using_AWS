@@ -57,3 +57,14 @@ To build the docker image, following steps were taken according to the tutorial.
 3. Run the build command `docker build -t haroonrashid/catnip .`
 
 ![](imgs/docker_build.png)
+
+4. The new image that we built can be seen by the `docker images` command whose output is shown below.
+
+![](imgs/docker_images_after_build.png)
+
+5. The docker image is run using `docker run -p 5000:5000 haroonrashid/catnip`
+![](imgs/docker_run.png)
+
+6. The flask app is accessed at `localhost:5000`. The port 5000 is exposed for the app in the dockerfile.
+![](imgs/flask_app.png)
+
