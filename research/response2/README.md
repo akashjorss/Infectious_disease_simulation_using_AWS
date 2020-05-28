@@ -3,6 +3,11 @@
 ## Environment
 This tutoirial is being run on MacOS Catalina v10.15.3.
 
+## Running the Hello-World docker application.
+As a first step, an account on docker hub is created and docker in installed on our machine. The docker installation is verified by running the hello-world docker command.
+
+![](imgs/hello_world_docker.png)
+
 ### Q1: Describe where docker finds the image of hello-world?
 When the command `docker run hello-world` is run, docker looks for the image `hello-world` in the local machine. If it cannot find the image, it pulls the latest image from the dockerhub library `library/hello-world:latest`. In our case, since it was the first time we ran the docker run command, it pulled the image from the dockerhub.
 
