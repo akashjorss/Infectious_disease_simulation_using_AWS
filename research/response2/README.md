@@ -17,19 +17,34 @@ When we call the `docker run` function, the docker takes the following steps:
     to the terminal.
     
 ### Useful Docker Commands
+Some useful commands were run to get the familiarization with docker as suggested by the tutorial. The commands and their corresponding output are shown below.
 
-`docker ps`
+`docker ps` - Shows all containers that are running
+
 ![](imgs/docker_ps.png)
 
-`docker ps -a`
+Since there are no containers running, the output is empty
+
+
+`docker ps -a` - Shows the history of containers
+
 ![](imgs/docker_ps_a.png)
 
-`docker container prune`
+`docker container prune` - Clears all the stopped containers
+
 ![](imgs/docker_prune.png)
 
+After clearning the containers, `docker ps -a` reponse is also empty
+
 ![](imgs/docker_ps.png)
-`docker images`
+
+
+
+`docker images`- Lists all the images stored locally
 
 ![](imgs/docker_images.png)
 
-`docker rmi [img ID]`
+
+`docker rmi [img ID]` - removes the image with [imgID].
+
+The commands helped us familiarize with the common docker commands to get started with docker.
