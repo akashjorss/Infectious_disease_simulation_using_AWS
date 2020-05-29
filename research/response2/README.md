@@ -146,3 +146,15 @@ Ans: The tutorial was very interesting. We learned about the containerization an
 
 We faced some problems in the deployment of container on ECS. First of all, using the ecs-cli, we faced credentials issues on the educate account as it was not able to validate the credentials provided. The issue was resolved by creating a cluster using AWS console and deploying a docker image on it using console. Since, the tutorial talked about cli way of deployment, we had to look for docker and ecs documentation to get the container on ecs working.
 
+#### FEEDBACK:
+
+Apart from the inline feedback we have given, the overall impression of this tutorial is that
+
+1. The overall tutorial was good and well explained. It had good pointers to resources for installation of things like dockerhub and docker for all the three platforms.
+2. The tutorial evolution was good, it started off with hello-world docker, then introduced some docker commands and build and run a docker locally.
+3. The last part of the tutorial was to deploy a container on ECS. This part was a little difficult to follow, because app that was provided to containerize and run was a bit buggy and no information on how to resolve those errors was provided.
+4. Finally, we had to look for resources outside the tutorial provided to deploy the container on ECS and get the application running. This part could have been improved and more detailed could have been provided.
+
+Nevertheless, we appreciate the effort put by the authors for this tutorial.
+
+Grade: 9.0
